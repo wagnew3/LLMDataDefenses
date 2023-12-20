@@ -1,0 +1,6 @@
+name: resist_tor
+channels:
+  - defaults
+dependencies:
+  - python=3.8
+prefix: /home/willie/anaconda3/envs/resist_tor
