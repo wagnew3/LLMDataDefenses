@@ -1,0 +1,28 @@
+Traceback (most recent call last):
+  File "/home/willie/github/JailbreakingLLMs/language_models.py", line 104, in generate
+    response = openai.ChatCompletion.create(
+  File "/home/willie/anaconda3/envs/resist_tor/lib/python3.8/site-packages/openai/lib/_old_api.py", line 39, in __call__
+    raise APIRemovedInV1(symbol=self._symbol)
+openai.lib._old_api.APIRemovedInV1:
+You tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.
+You can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface.
+Alternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`
+A detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742
+During handling of the above exception, another exception occurred:
+Traceback (most recent call last):
+  File "main.py", line 188, in <module>
+    main(args)
+  File "main.py", line 38, in main
+    extracted_attack_list = attackLM.get_attack(convs_list, processed_response_list)
+  File "/home/willie/github/JailbreakingLLMs/conversers.py", line 94, in get_attack
+    outputs_list = self.model.batched_generate(full_prompts_subset,
+  File "/home/willie/github/JailbreakingLLMs/language_models.py", line 126, in batched_generate
+    return [self.generate(conv, max_n_tokens, temperature, top_p) for conv in convs_list]
+  File "/home/willie/github/JailbreakingLLMs/language_models.py", line 126, in <listcomp>
+    return [self.generate(conv, max_n_tokens, temperature, top_p) for conv in convs_list]
+  File "/home/willie/github/JailbreakingLLMs/language_models.py", line 114, in generate
+    except openai.error.OpenAIError as e:
+AttributeError: module 'openai' has no attribute 'error'
+====================================
+Iteration: 1
+====================================

@@ -1,0 +1,19 @@
+====================================
+Iteration: 1
+====================================
+Traceback (most recent call last):
+  File "main.py", line 188, in <module>
+    main(args)
+  File "main.py", line 38, in main
+    extracted_attack_list = attackLM.get_attack(convs_list, processed_response_list)
+  File "/home/willie/github/JailbreakingLLMs/conversers.py", line 94, in get_attack
+    outputs_list = self.model.batched_generate(full_prompts_subset,
+  File "/home/willie/github/JailbreakingLLMs/language_models.py", line 127, in batched_generate
+    return [self.generate(conv, max_n_tokens, temperature, top_p) for conv in convs_list]
+  File "/home/willie/github/JailbreakingLLMs/language_models.py", line 127, in <listcomp>
+    return [self.generate(conv, max_n_tokens, temperature, top_p) for conv in convs_list]
+  File "/home/willie/github/JailbreakingLLMs/language_models.py", line 107, in generate
+    response = client.chat.completions.create(model = self.model_name,
+  File "/home/willie/anaconda3/envs/resist_tor/lib/python3.8/site-packages/openai/_utils/_utils.py", line 303, in wrapper
+    return func(*args, **kwargs)
+TypeError: create() got an unexpected keyword argument 'request_timeout'
