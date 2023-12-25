@@ -21,10 +21,10 @@ class JudgeBase:
         self.judge_name = args.judge_model
         self.goal = args.goal
         self.target_str = args.target_str
-        self.system_prompt = get_judge_system_prompt(args.goal, args.target_str)
+        self.system_prompt = get_judge_system_prompt(args.break_task, args.target_str)
 
     def get_judge_prompt(self, attack_prompt, target_response):
-        return f"[PROMPT]:{attack_prompt}\n[ASSISTANT'S RESPONSE]: {target_response}"
+        return f"[AI ASSISTANT'S ANSWER]: \"\"\"{target_response}\"\"\"\n[CORRECT ANSWER]: \"\"\"{attack_prompt}\"\"\""
 
     def score(self, prompt_list, response_list):
         raise NotImplementedError
@@ -57,7 +57,7 @@ class GPTJudge(JudgeBase):
         conv.append_message(conv.roles[0], full_prompt)
         return conv.to_openai_api_messages()
 
-    def score(self, attack_prompt_list, target_response_list):
+    def score(self, attack_prompt_list, target_response_list, break_task):
         convs_list = [self.create_conv(self.get_judge_prompt(prompt, response)) for prompt, response in zip(attack_prompt_list, target_response_list)]
         raw_outputs = self.judge_model.batched_generate(convs_list, 
                                                         max_n_tokens = self.max_n_tokens,

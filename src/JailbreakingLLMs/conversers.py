@@ -1,4 +1,3 @@
-
 import common
 from language_models import GPT, Claude, PaLM, HuggingFace
 import torch
@@ -146,7 +145,7 @@ class TargetLM():
             self.model = preloaded_model
             _, self.template = get_model_path_and_template(model_name)
 
-    def get_response(self, prompts_list):
+    def get_response(self, prompts_list, break_task):
         batchsize = len(prompts_list)
         convs_list = [common.conv_template(self.template) for _ in range(batchsize)]
         full_prompts = []
@@ -161,6 +160,10 @@ class TargetLM():
                 conv.append_message(conv.roles[1], None) 
                 full_prompts.append(conv.get_prompt())
         
+        for prompt in full_prompts:
+            prompt[0]['content']=prompt[0]['content']+break_task
+        
+
         outputs_list = self.model.batched_generate(full_prompts, 
                                                         max_n_tokens = self.max_n_tokens,  
                                                         temperature = self.temperature,

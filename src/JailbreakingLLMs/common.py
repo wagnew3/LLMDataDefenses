@@ -3,7 +3,7 @@ import logging
 from fastchat.model import get_conversation_template
 
 
-def extract_json(s):
+def extract_json(s, expected_keys=["improvement","prompt"]):
     """
     Given an output from the attacker LLM, this function extracts the values
     for `improvement` and `adversarial prompt` and returns them as a dictionary.
@@ -28,7 +28,7 @@ def extract_json(s):
 
     try:
         parsed = ast.literal_eval(json_str)
-        if not all(x in parsed for x in ["improvement","prompt"]):
+        if not all(x in parsed for x in expected_keys):
             logging.error("Error in extracted structure. Missing keys.")
             logging.error(f"Extracted:\n {json_str}")
             return None, None
