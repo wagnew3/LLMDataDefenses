@@ -175,7 +175,7 @@ class TargetLM():
 
 def load_indiv_model(model_name, device=None):
     model_path, template = get_model_path_and_template(model_name)
-    if model_name in ["gpt-3.5-turbo", "gpt-4"]:
+    if model_name in ["gpt-3.5-turbo", "gpt-4", "gpt-4-1106-preview"]:
         lm = GPT(model_name)
     elif model_name in ["claude-2", "claude-instant-1"]:
         lm = Claude(model_name)
@@ -207,7 +207,7 @@ def load_indiv_model(model_name, device=None):
 
 def get_model_path_and_template(model_name):
     full_model_dict={
-        "gpt-4":{
+        "gpt-4-1106-preview":{
             "path":"gpt-4",
             "template":"gpt-4"
         },

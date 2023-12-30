@@ -57,7 +57,7 @@ class GPTJudge(JudgeBase):
         conv.append_message(conv.roles[0], full_prompt)
         return conv.to_openai_api_messages()
 
-    def score(self, attack_prompt_list, target_response_list, break_task):
+    def score(self, attack_prompt_list, target_response_list):
         convs_list = [self.create_conv(self.get_judge_prompt(prompt, response)) for prompt, response in zip(attack_prompt_list, target_response_list)]
         raw_outputs = self.judge_model.batched_generate(convs_list, 
                                                         max_n_tokens = self.max_n_tokens,
