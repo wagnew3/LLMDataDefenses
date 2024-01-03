@@ -6,7 +6,7 @@ import numpy as np
 if __name__ == '__main__':
     # load run results
     exp_results=[]
-    results_dir='/Users/williamagnew/eclipse-workspace/resisting_llm/results/run_results'
+    results_dir='../results/experiments'
     for file in os.listdir(results_dir):
         if file[-2:]=='.p':
             results_file=os.path.join(results_dir, file)
@@ -16,11 +16,13 @@ if __name__ == '__main__':
     defense_method_results={}
     for exp_result in exp_results:
         defense_method=exp_result['args'].attack_type
+        attacker_model=exp_result['args'].target_model
         task=exp_result['args'].break_task
-        if defense_method not in defense_method_results:
-            defense_method_results[defense_method]={}
-        defense_method_results[defense_method][task]=exp_result['judge_defense_score']
-    
+        if attacker_model=='vicuna':
+            if defense_method not in defense_method_results:
+                defense_method_results[defense_method]={}
+            defense_method_results[defense_method][task]=exp_result['judge_defense_score']
+        
     print(exp_results[2]['defense'][0])
     
     defense_methods=list(defense_method_results.keys())

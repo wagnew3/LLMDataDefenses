@@ -150,18 +150,22 @@ class TargetLM():
         convs_list = [common.conv_template(self.template) for _ in range(batchsize)]
         full_prompts = []
         for conv, prompt in zip(convs_list, prompts_list):
-            conv.append_message(conv.roles[0], prompt)
+            
             if "gpt" in self.model_name:
                 # Openai does not have separators
+                conv.append_message(conv.roles[0], prompt)
                 full_prompts.append(conv.to_openai_api_messages())
+                for prompt in full_prompts:
+                    prompt[0]['content']=prompt[0]['content']+break_task
             elif "palm" in self.model_name:
+                conv.append_message(conv.roles[0], prompt)
                 full_prompts.append(conv.messages[-1][1])
             else:
+                conv.append_message(conv.roles[0], break_task+" "+prompt)
                 conv.append_message(conv.roles[1], None) 
                 full_prompts.append(conv.get_prompt())
         
-        for prompt in full_prompts:
-            prompt[0]['content']=prompt[0]['content']+break_task
+        
         
 
         outputs_list = self.model.batched_generate(full_prompts, 
