@@ -318,7 +318,7 @@ if __name__ == '__main__':
     # Tasks to defend against.
     break_tasks=DATASETS[args.dataset]["prompts"]
     # Models to defend against. I want to add Palm, Claude, and Vicuna to this.
-    target_models=["gpt-3.5-turbo"]
+    target_models=["gpt-4-1106-preview", "gpt-3.5-turbo"]
 
     # Run one experiment. Use to develop and debug.
     args.num_defen_instances=50
