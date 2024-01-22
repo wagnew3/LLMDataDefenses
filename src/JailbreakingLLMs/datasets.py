@@ -15,8 +15,8 @@ def load_bios():
 def load_reddit():
     data_path = "../../synthetic_reddit/synthetic_dataset.jsonl"
     all_data = []
-    with open(data_path, 'r') as json: # read csv file as a list of lists
-        json_list = list(json)
+    with open(data_path, 'r') as json_file: # read csv file as a list of lists
+        json_list = list(json_file)
     for line in json_list:
         data = json.loads(line)
         all_data.append("question asked:\n" + data["question_asked"] + "\n\n\nreponse:\n" + data["response"])

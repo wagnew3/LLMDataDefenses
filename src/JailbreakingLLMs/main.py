@@ -44,6 +44,7 @@ def main(args):
     attackLM, targetLM = load_attack_and_target_models(args)
     
     for attack_num in range(args.num_defen_instances):
+        print(f"""\n{'='*72}\nDEFENCE NUMBER: {attack_num}\n{'='*72}\n""")
         
         # Get data to defend. Do not use same bio to generate defense as to test defense.
         if args.attack_type!='generate_jailbreaks':
@@ -121,7 +122,7 @@ def main(args):
                 adv_prompt_list=[obscene_str]
             # Append sentances from random bio to defend
             elif args.attack_type=='bio_sentance':
-                ind=random.randint(0, len(bios))
+                ind=random.randrange(0, len(bios))
                 adv_prompt_list=[bios[ind][:args.attack_max_n_tokens]]
             # No defense
             elif args.attack_type=='nothing':
@@ -317,10 +318,10 @@ if __name__ == '__main__':
     # Tasks to defend against.
     break_tasks=DATASETS[args.dataset]["prompts"]
     # Models to defend against. I want to add Palm, Claude, and Vicuna to this.
-    target_models=["gpt-4-1106-preview", "gpt-3.5-turbo"]
+    target_models=["gpt-3.5-turbo"]
 
     # Run one experiment. Use to develop and debug.
-    args.num_defen_instances=75
+    args.num_defen_instances=50
     args.attack_model="gpt-4-1106-preview"
     args.target_model="gpt-4-1106-preview"
     args.judge_model="gpt-4-1106-preview"
