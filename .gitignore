@@ -1,2 +1,4 @@
 *.DS_Store
 /wikibios/*.csv
+/meddialog_cn
+/meddialog_en
