@@ -40,7 +40,9 @@ The boiling point of water at sea level is 100 degrees Celsius (212 degrees Fahr
 
 1. git clone git@github.com:wagnew3/LLMDataDefenses.git
 2. cd LLMDataDefenses/
-3. Download and extract the [wikibios dataset](https://lebret.ch/wikipedia-biography-dataset/) into the project folder
+3. Download and extract the [wikibios dataset](https://lebret.ch/wikipedia-biography-dataset/) into the project folder and rename it `wikibios`.
+4. Download the preprocessed [MedDialog dataset](https://github.com/UCSD-AI4H/Medical-Dialogue-System) into the `meddialog-en` folder in the home directory of the repo.
+5. Download the supplementaru material from [this paper](https://openreview.net/forum?id=kmn0BhQk7p) and find the files `synthetic_dataset.jsonl`, `samples_all_hardness_all_features_0_0_split2.jsonl`, and `samples_all_hardness_all_features_0_0_split1.jsonl`, and paste them into the `synthetic_reddit` folder in the home directory of the repo.
 6. conda env create -n resist_llm --file ENV.yml
 7. Follow step 2 of https://platform.openai.com/docs/quickstart?context=python to set up openai API key. If you do not have a key contact Willie (wagnew@andrew.cmu.edu) for one. Please note that openai API calls cost ~$0.001--don't make thousands of calls without consulting with Willie first.
 8. cd src/JailbreakingLLMs

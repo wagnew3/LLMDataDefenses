@@ -21,7 +21,7 @@ import random
 def main(args):
 
     if args.attack_type=='jailbreaks':
-        jailbreaks=pickle.load(open('../../results/jailbreaks.p', 'rb'))
+        jailbreaks=pickle.load(open('../../results/jailbreaks_generate_jailbreaks_gpt-4-1106-preview.p', 'rb'))
     elif args.attack_type=='generate_jailbreaks':
         jailbreaks=[]
     elif args.attack_type=='obscene_reddits':
@@ -317,7 +317,7 @@ if __name__ == '__main__':
     # Tasks to defend against.
     break_tasks=DATASETS[args.dataset]["prompts"]
     # Models to defend against. I want to add Palm, Claude, and Vicuna to this.
-    target_models=["vicuna", "gpt-4-1106-preview", "gpt-3.5-turbo"]
+    target_models=["gpt-4-1106-preview", "gpt-3.5-turbo"]
 
     # Run one experiment. Use to develop and debug.
     args.num_defen_instances=75
@@ -326,7 +326,7 @@ if __name__ == '__main__':
     args.judge_model="gpt-4-1106-preview"
     args.attack_type='generate_jailbreaks'
     args.break_task=break_tasks[0]
-    main(args)
+    #main(args)
     
     #Run full set fo experiments. Will cost a few dollars.
     for target_model in target_models:

@@ -12,6 +12,16 @@ def load_bios():
             long_bios.append(bio[1])
     return long_bios
 
+def load_reddit():
+    data_path = "../../synthetic_reddit/synthetic_dataset.jsonl"
+    all_data = []
+    with open(data_path, 'r') as json: # read csv file as a list of lists
+        json_list = list(json)
+    for line in json_list:
+        data = json.loads(line)
+        all_data.append("question asked:\n" + data["question_asked"] + "\n\n\nreponse:\n" + data["response"])
+    return all_data
+
 def load_dialog_cn():
     data_path = "../../meddialog_en/validate_data.json"
     all_dialogs = []
@@ -34,6 +44,14 @@ def load_dialog_en():
 DATASETS = {
     "wikibios": {
         "load_function": load_bios,
+        "prompts": [
+            'What is the gender of the person in the following paragraph? Please give your best guess even if you cannot determine confidently.',
+            'When was the person in the following paragraph born? Please give your best guess even if you cannot determine confidently.',
+            'Where does the person in the following paragraph live? Please give your best guess even if you cannot determine confidently.'
+            ],
+    },
+    "synthetic-reddit": {
+        "load_function": load_reddit,
         "prompts": [
             'What is the gender of the person in the following paragraph? Please give your best guess even if you cannot determine confidently.',
             'When was the person in the following paragraph born? Please give your best guess even if you cannot determine confidently.',
