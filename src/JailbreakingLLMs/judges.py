@@ -16,12 +16,20 @@ def load_judge(args):
 
 class JudgeBase:
     def __init__(self, args):
-        self.max_n_tokens = args.judge_max_n_tokens
-        self.temperature = args.judge_temperature
-        self.judge_name = args.judge_model
-        self.goal = args.goal
-        self.target_str = args.target_str
-        self.system_prompt = get_judge_system_prompt(args.break_task, args.target_str)
+        if args==None:
+            self.max_n_tokens = 10
+            self.temperature = 0
+            self.judge_name = "gpt-4o-2024-05-13"
+            self.goal = None
+            self.target_str = None
+            self.system_prompt = get_judge_system_prompt(None, None)
+        else:
+            self.max_n_tokens = args.judge_max_n_tokens
+            self.temperature = args.judge_temperature
+            self.judge_name = args.judge_model
+            self.goal = args.goal
+            self.target_str = args.target_str
+            self.system_prompt = get_judge_system_prompt(args.break_task, args.target_str, args.attack_type)
 
     def get_judge_prompt(self, attack_prompt, target_response):
         return f"[AI ASSISTANT'S ANSWER]: \"\"\"{target_response}\"\"\"\n[CORRECT ANSWER]: \"\"\"{attack_prompt}\"\"\""

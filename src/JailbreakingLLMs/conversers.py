@@ -12,6 +12,7 @@ def load_attack_and_target_models(args):
                         max_n_attack_attempts = args.max_n_attack_attempts, 
                         temperature = ATTACK_TEMP, # init to 1
                         top_p = ATTACK_TOP_P, # init to 0.9
+                        attack_type=args.attack_type
                         )
     preloaded_model = None
     if args.attack_model == args.target_model:
@@ -36,7 +37,8 @@ class AttackLM():
                 max_n_tokens: int, 
                 max_n_attack_attempts: int, 
                 temperature: float,
-                top_p: float):
+                top_p: float,
+                attack_type):
         
         self.model_name = model_name
         self.temperature = temperature
@@ -44,6 +46,10 @@ class AttackLM():
         self.max_n_attack_attempts = max_n_attack_attempts
         self.top_p = top_p
         self.model, self.template = load_indiv_model(model_name)
+        if attack_type=="original":
+            self.attack_keys=["prompt", "improvement"]
+        else:
+            self.attack_keys=["prompt"]
         
         if "vicuna" in model_name or "llama" in model_name:
             self.model.extend_eos_tokens()
@@ -103,7 +109,7 @@ class AttackLM():
                 if "gpt" not in self.model_name:
                     full_output = init_message + full_output
 
-                attack_dict, json_str = common.extract_json(full_output)
+                attack_dict, json_str = common.extract_json(full_output, expected_keys=self.attack_keys)
                 
                 if attack_dict is not None:
                     valid_outputs[orig_index] = attack_dict
@@ -175,7 +181,7 @@ class TargetLM():
 
 def load_indiv_model(model_name, device=None):
     model_path, template = get_model_path_and_template(model_name)
-    if model_name in ["gpt-3.5-turbo", "gpt-4", "gpt-4-1106-preview"]:
+    if model_name in ["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo-2024-04-09", "gpt-4o-2024-05-13", "gpt-3.5-turbo-0125"]:
         lm = GPT(model_name)
     elif model_name in ["claude-2", "claude-instant-1"]:
         lm = Claude(model_name)
@@ -207,11 +213,15 @@ def load_indiv_model(model_name, device=None):
 
 def get_model_path_and_template(model_name):
     full_model_dict={
+        "gpt-4o-2024-05-13":{
+            "path":"gpt-4",
+            "template":"gpt-4"
+        },
         "gpt-4-1106-preview":{
             "path":"gpt-4",
             "template":"gpt-4"
         },
-        "gpt-3.5-turbo": {
+        "gpt-3.5-turbo-0125": {
             "path":"gpt-3.5-turbo",
             "template":"gpt-3.5-turbo"
         },
