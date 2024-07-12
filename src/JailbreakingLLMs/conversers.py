@@ -1,8 +1,9 @@
 import common
-from language_models import GPT, Claude, PaLM, HuggingFace
+from language_models import GPT, Claude, PaLM, HuggingFace, FinetunedCheckpoint
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from config import VICUNA_PATH, LLAMA_PATH, ATTACK_TEMP, TARGET_TEMP, ATTACK_TOP_P, TARGET_TOP_P   
+import os
 
 def load_attack_and_target_models(args):
     # Load attack model and tokenizer
@@ -106,7 +107,7 @@ class AttackLM():
             new_indices_to_regenerate = []
             for i, full_output in enumerate(outputs_list):
                 orig_index = indices_to_regenerate[i]
-                if "gpt" not in self.model_name:
+                if "gpt" not in self.model_name and "pythia" not in self.model_name:
                     full_output = init_message + full_output
 
                 attack_dict, json_str = common.extract_json(full_output, expected_keys=self.attack_keys)
@@ -187,6 +188,17 @@ def load_indiv_model(model_name, device=None):
         lm = Claude(model_name)
     elif model_name in ["palm-2"]:
         lm = PaLM(model_name)
+    elif model_name in ["finetuned-pythia"]:
+        model = AutoModelForCausalLM.from_pretrained(
+                "EleutherAI/pythia-1.4b",
+                cache_dir=".cache",
+                low_cpu_mem_usage=True,
+                device_map="balanced")
+        tokenizer = AutoTokenizer.from_pretrained("EleutherAI/pythia-1.4b")
+        current_dir = os.getcwd()
+        checkpoint_dir = os.path.join(current_dir, "policy.pt")
+        lm = FinetunedCheckpoint(model_name, model, tokenizer, checkpoint_dir)
+        
     else:
         model = AutoModelForCausalLM.from_pretrained(
                 model_path, 

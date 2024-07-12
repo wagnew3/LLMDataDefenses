@@ -73,6 +73,7 @@ class HuggingFace(LanguageModel):
 
         return outputs_list
 
+
     def extend_eos_tokens(self):        
         # Add closing braces for Vicuna/Llama eos when using attacker model
         self.eos_token_ids.extend([
@@ -124,6 +125,37 @@ class GPT(LanguageModel):
                         temperature: float,
                         top_p: float = 1.0,):
         return [self.generate(conv, max_n_tokens, temperature, top_p) for conv in convs_list]
+    
+
+class FinetunedCheckpoint(LanguageModel):
+    def __init__(self, model_name, model, tokenizer, checkpoint_path, device = "cuda"):
+        self.model_name = model_name
+        self.model = model
+        self.tokenizer = tokenizer
+
+        self.device = device
+
+        state_dict = torch.load(checkpoint_path)
+        self.model.load_state_dict(state_dict["state"]).to(self.device)
+        
+    def generate(self, prompt, max_n_tokens, temperature, top_p):
+        input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids.to(self.device)
+
+        gen_tokens = self.model.generate(
+                     input_ids,
+                     do_sample=True,
+                     temperature=temperature,
+                     max_length=max_n_tokens,
+                     top_p = top_p)
+
+        return self.tokenizer.batch_decode(gen_tokens)[0]
+
+    def batched_generate(self, prompts_list, max_n_tokens, temperature, top_p):
+        return [self.generate(prompt, max_n_tokens, temperature) for prompt in prompts_list]  
+
+
+
+
 
 class Claude():
     API_RETRY_SLEEP = 10
