@@ -17,7 +17,12 @@ def extract_json(s, expected_keys=["improvement","prompt"]):
     """
     # Extract the string that looks like a JSON
     start_pos = s.find("{") 
-    end_pos = s.find("}") + 1  # +1 to include the closing brace
+    end_pos = s.find("}")  # +1 to include the closing brace
+    if end_pos==-1:
+        s=s+"\"\n}```"
+        end_pos = s.find("}")
+        print(s)
+    
     if end_pos == -1:
         logging.error("Error extracting potential JSON structure")
         logging.error(f"Input:\n {s}")

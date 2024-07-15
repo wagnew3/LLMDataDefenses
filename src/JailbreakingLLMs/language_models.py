@@ -9,7 +9,7 @@ import time
 import torch
 import gc
 from typing import Dict, List
-import google.generativeai as palm
+import google.generativeai as genai
 
 
 class LanguageModel():
@@ -134,6 +134,7 @@ class Claude():
     API_KEY = os.getenv("ANTHROPIC_API_KEY")
    
     def __init__(self, model_name) -> None:
+        self.API_KEY=os.getenv("ANTHROPIC_API_KEY")
         self.model_name = model_name
         self.model= anthropic.Anthropic(
             api_key=self.API_KEY,
@@ -155,14 +156,15 @@ class Claude():
         output = self.API_ERROR_OUTPUT
         for _ in range(self.API_MAX_RETRY):
             try:
-                completion = self.model.completions.create(
+                completion = self.model.messages.create(
                     model=self.model_name,
-                    max_tokens_to_sample=max_n_tokens,
-                    prompt=conv,
+                    max_tokens=max_n_tokens,
                     temperature=temperature,
-                    top_p=top_p
+                    top_p=top_p,
+                    system=conv[0]['content'],
+                    messages=[conv[1]]
                 )
-                output = completion.completion
+                output = completion.content[0].text
                 break
             except anthropic.APIError as e:
                 print(type(e), e)
@@ -185,11 +187,12 @@ class PaLM():
     API_MAX_RETRY = 5
     API_TIMEOUT = 20
     default_output = "I'm sorry, but I cannot assist with that request."
-    API_KEY = os.getenv("PALM_API_KEY")
+    API_KEY = os.getenv("GOOGLE_API_KEY")
 
     def __init__(self, model_name) -> None:
         self.model_name = model_name
-        palm.configure(api_key=self.API_KEY)
+        genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
+
 
     def generate(self, conv: List, 
                 max_n_tokens: int, 
@@ -207,12 +210,15 @@ class PaLM():
         output = self.API_ERROR_OUTPUT
         for _ in range(self.API_MAX_RETRY):
             try:
-                completion = palm.chat(
-                    messages=conv,
-                    temperature=temperature,
-                    top_p=top_p
+                model=genai.GenerativeModel(
+                  model_name=self.model_name,
+                  system_instruction=conv[0]['content'])
+    
+                completion = model.generate_content(conv[1]['content'],
+                    generation_config={'temperature':temperature,
+                    'top_p': top_p}
                 )
-                output = completion.last
+                output = completion.text
                 
                 if output is None:
                     # If PaLM refuses to output and returns None, we replace it with a default output

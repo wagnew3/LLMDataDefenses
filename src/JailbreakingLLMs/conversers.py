@@ -6,7 +6,7 @@ from config import VICUNA_PATH, LLAMA_PATH, ATTACK_TEMP, TARGET_TEMP, ATTACK_TOP
 
 def load_attack_and_target_models(args):
     # Load attack model and tokenizer
-    print("args.attack_model", args.attack_model)
+    #print("args.attack_model", args.attack_model)
     attackLM = AttackLM(model_name = args.attack_model, 
                         max_n_tokens = args.attack_max_n_tokens, 
                         max_n_attack_attempts = args.max_n_attack_attempts, 
@@ -16,7 +16,7 @@ def load_attack_and_target_models(args):
                         )
     preloaded_model = None
     if args.attack_model == args.target_model:
-        print("Using same attack and target model. Using previously loaded model.")
+        #print("Using same attack and target model. Using previously loaded model.")
         preloaded_model = attackLM.model
     targetLM = TargetLM(model_name = args.target_model, 
                         max_n_tokens = args.target_max_n_tokens,
@@ -85,7 +85,7 @@ class AttackLM():
         for conv, prompt in zip(convs_list, prompts_list):
             conv.append_message(conv.roles[0], prompt)
             # Get prompts
-            if "gpt" in self.model_name:
+            if "gpt" in self.model_name or "claude" in self.model_name or "gemini" in self.model_name:
                 full_prompts.append(conv.to_openai_api_messages())
             else:
                 conv.append_message(conv.roles[1], init_message)
@@ -106,27 +106,28 @@ class AttackLM():
             new_indices_to_regenerate = []
             for i, full_output in enumerate(outputs_list):
                 orig_index = indices_to_regenerate[i]
-                if "gpt" not in self.model_name:
+                if "gpt" not in self.model_name and 'claude' not in self.model_name and "gemini" not in self.model_name:
                     full_output = init_message + full_output
 
-                attack_dict, json_str = common.extract_json(full_output, expected_keys=self.attack_keys)
+                #attack_dict, json_str = common.extract_json(full_output, expected_keys=self.attack_keys)
+                return [{'prompt': full_output}]
                 
-                if attack_dict is not None:
-                    valid_outputs[orig_index] = attack_dict
-                    convs_list[orig_index].update_last_message(json_str)  # Update the conversation with valid generation
-                else:
-                    new_indices_to_regenerate.append(orig_index)
-            
-            # Update indices to regenerate for the next iteration
-            indices_to_regenerate = new_indices_to_regenerate
-            
-            # If all outputs are valid, break
-            if not indices_to_regenerate:
-                break
-        
-        if any([output for output in valid_outputs if output is None]):
-            print(f"Failed to generate output after {self.max_n_attack_attempts} attempts. Terminating.")
-        return valid_outputs
+        #         if attack_dict is not None:
+        #             valid_outputs[orig_index] = attack_dict
+        #             convs_list[orig_index].update_last_message(json_str)  # Update the conversation with valid generation
+        #         else:
+        #             new_indices_to_regenerate.append(orig_index)
+        #
+        #     # Update indices to regenerate for the next iteration
+        #     indices_to_regenerate = new_indices_to_regenerate
+        #
+        #     # If all outputs are valid, break
+        #     if not indices_to_regenerate:
+        #         break
+        #
+        # if any([output for output in valid_outputs if output is None]):
+        #     print(f"Failed to generate output after {self.max_n_attack_attempts} attempts. Terminating.")
+        # return valid_outputs
 
 class TargetLM():
     """
@@ -157,17 +158,22 @@ class TargetLM():
         full_prompts = []
         for conv, prompt in zip(convs_list, prompts_list):
             conv.append_message(conv.roles[0], prompt)
-            if "gpt" in self.model_name:
+            if "gpt" in self.model_name or "claude" in self.model_name or "gemini" in self.model_name:
                 # Openai does not have separators
                 full_prompts.append(conv.to_openai_api_messages())
             elif "palm" in self.model_name:
                 full_prompts.append(conv.messages[-1][1])
             else:
                 conv.append_message(conv.roles[1], None) 
-                full_prompts.append(conv.get_prompt())
+                full_prompts.append(conv.system_message+" "+break_task+" "+prompts_list[0])
         
-        for prompt in full_prompts:
-            prompt[0]['content']=prompt[0]['content']+break_task
+        if "gpt" in self.model_name or "claude" in self.model_name or "gemini" in self.model_name:
+            for prompt in full_prompts:
+                prompt[0]['content']=prompt[0]['content']+break_task
+        # else:
+        #     for ind in range(len(full_prompts)):
+        #         full_prompts[ind]=full_prompts[ind]+break_task
+                
         
 
         outputs_list = self.model.batched_generate(full_prompts, 
@@ -183,9 +189,9 @@ def load_indiv_model(model_name, device=None):
     model_path, template = get_model_path_and_template(model_name)
     if model_name in ["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo-2024-04-09", "gpt-4o-2024-05-13", "gpt-3.5-turbo-0125"]:
         lm = GPT(model_name)
-    elif model_name in ["claude-2", "claude-instant-1"]:
+    elif model_name in ["claude-2", "claude-instant-1", "claude-3-5-sonnet-20240620"]:
         lm = Claude(model_name)
-    elif model_name in ["palm-2"]:
+    elif model_name in ["gemini-1.5-pro"]:
         lm = PaLM(model_name)
     else:
         model = AutoModelForCausalLM.from_pretrained(
@@ -237,11 +243,11 @@ def get_model_path_and_template(model_name):
             "path":"claude-instant-1",
             "template":"claude-instant-1"
         },
-        "claude-2":{
+        "claude-3-5-sonnet-20240620":{
             "path":"claude-2",
             "template":"claude-2"
         },
-        "palm-2":{
+        "gemini-1.5-pro":{
             "path":"palm-2",
             "template":"palm-2"
         }
