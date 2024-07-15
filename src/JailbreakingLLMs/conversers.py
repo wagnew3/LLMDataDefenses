@@ -107,7 +107,7 @@ class AttackLM():
             new_indices_to_regenerate = []
             for i, full_output in enumerate(outputs_list):
                 orig_index = indices_to_regenerate[i]
-                if "gpt" not in self.model_name and "pythia" not in self.model_name:
+                if "gpt" not in self.model_name:
                     full_output = init_message + full_output
 
                 attack_dict, json_str = common.extract_json(full_output, expected_keys=self.attack_keys)
