@@ -256,6 +256,10 @@ def get_model_path_and_template(model_name):
         "palm-2":{
             "path":"palm-2",
             "template":"palm-2"
+        },
+        "finetuned-pythia": {
+            "path": "finetuned-pythia",
+            "template": "finetuned-pythia"
         }
     }
     path, template = full_model_dict[model_name]["path"], full_model_dict[model_name]["template"]
