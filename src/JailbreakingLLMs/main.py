@@ -273,7 +273,7 @@ def run_exps(args, defenses):
             jailbreaks,
             bio
         )
-        print(system_prompt)
+        # print(system_prompt)
 
         judgeLM = load_judge(args)
         
@@ -294,14 +294,14 @@ def run_exps(args, defenses):
         # Get unattacked response
         normal_response = targetLM.get_response([input], break_task)
     
-        print('args.n_iterations', args.n_iterations)
+        # print('args.n_iterations', args.n_iterations)
         number_iterations=1
         if args.attack_type=="original" or  args.attack_type=='generate_jailbreaks':
             number_iterations=20
         
         # Begin PAIR
         for iteration in range(1, args.n_iterations + 1):
-            print(f"""\n{'='*36}\nIteration: {iteration}\n{'='*36}\n""")
+            # print(f"""\n{'='*36}\nIteration: {iteration}\n{'='*36}\n""")
             if args.attack_type=="original" and iteration > 1:
                 processed_response_list = [process_target_response(target_response, score, args.goal, args.target_str) for target_response, score in zip(target_response_list,judge_scores)]
     
@@ -343,7 +343,7 @@ def run_exps(args, defenses):
                 for conv in convs_list:
                     conv.set_system_message(system_prompt)
                 extracted_attack_list = attackLM.get_attack(convs_list, processed_response_list)
-                print("Finished getting adversarial prompts.")
+                # print("Finished getting adversarial prompts.")
         
                 # Extract prompts and improvements
                 adv_prompt_list = [attack["prompt"] for attack in extracted_attack_list]
@@ -445,9 +445,9 @@ def run_exps(args, defenses):
             
             
             # Print prompts, responses, and scores
-            for i,(prompt,response,score) in enumerate(zip(adv_prompt_list,target_response_list, [avg_success_rate])):
-                print(f"{i+1}/{batchsize}\n\n[PROMPT]:\n{prompt} \n\n[RESPONSE]:\n{response}\n\n[UNATTACKED RESPONSE]:\n{normal_response}\n\n[SCORE]:\n{score}\n\n")
-                print(f"[ADV PROMPT]:\n{adv_prompt_list[0]}")
+            # for i,(prompt,response,score) in enumerate(zip(adv_prompt_list,target_response_list, [avg_success_rate])):
+            #     print(f"{i+1}/{batchsize}\n\n[PROMPT]:\n{prompt} \n\n[RESPONSE]:\n{response}\n\n[UNATTACKED RESPONSE]:\n{normal_response}\n\n[SCORE]:\n{score}\n\n")
+            #     print(f"[ADV PROMPT]:\n{adv_prompt_list[0]}")
                 
             for i, conv in enumerate(convs_list):
                 conv.messages = conv.messages[-2*(args.keep_last_n):]
@@ -644,7 +644,7 @@ if __name__ == '__main__':
     # args.attack_type='substitute'
     args.break_task=break_tasks[args.break_task_ind]
     args.judge_model="gpt-4o-2024-05-13"
-    print(f"Starting {args.attack_type}_{args.target_model}_{args.break_task}_{args.dataset}_{args.num_defen_instances}_{args.countermeasure}")
+    #print(f"Starting {args.attack_type}_{args.target_model}_{args.break_task}_{args.dataset}_{args.num_defen_instances}_{args.countermeasure}")
     #run_exps(args, [args.countermeasure])
     
     # Run full set fo experiments. Will cost a few dollars.
@@ -657,17 +657,17 @@ if __name__ == '__main__':
     
     
     
-    print(f"Starting {num_threads_needed} threads")
+    #print(f"Starting {num_threads_needed} threads")
     all_parallel_runs=[]
     #with mp.Pool(processes=16, maxtasksperchild=1) as pool:
     for target_model in target_models:
-        print(f'target_model: {target_model}')
+        #print(f'target_model: {target_model}')
         for break_task in break_tasks:
-            print(f'break_task: {break_task}')
+            #print(f'break_task: {break_task}')
             for defense_type in defense_types:
-                print(f'defense_type: {defense_type}')
+                #print(f'defense_type: {defense_type}')
                 for countermeasure in countermeasures:
-                    print(f'countermeasure: {countermeasure}')
+                    #print(f'countermeasure: {countermeasure}')
                     args.attack_model="finetuned-pythia"
                     args.target_model=target_model
                     args.judge_model="gpt-4o-2024-05-13"
