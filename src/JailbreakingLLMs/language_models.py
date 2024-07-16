@@ -148,7 +148,8 @@ class FinetunedCheckpoint(LanguageModel):
                      max_length=max_n_tokens,
                      top_p = top_p)
 
-        return self.tokenizer.batch_decode(gen_tokens)[0]
+        full_response = self.tokenizer.batch_decode(gen_tokens)[0]
+        return full_response[len(prompt):] # Hugging Face generates with prompt included; remove the prompt from response
 
     def batched_generate(self, prompts_list, max_n_tokens, temperature, top_p):
         return [self.generate(prompt, max_n_tokens, temperature) for prompt in prompts_list]  
