@@ -136,7 +136,7 @@ class FinetunedCheckpoint(LanguageModel):
         self.device = device
 
         state_dict = torch.load(checkpoint_path)
-        self.model.load_state_dict(state_dict["state"]).to(self.device)
+        self.model.load_state_dict(state_dict["state"])
         
     def generate(self, prompt, max_n_tokens, temperature, top_p):
         input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids.to(self.device)
