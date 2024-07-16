@@ -46,7 +46,7 @@ def load_bios(bios_path):
     for bio in bios:
         if len(bio)>2000:
             long_bios.append(bio)
-    print(long_bios[0])
+    # print(long_bios[0])
     return long_bios
 
 
