@@ -92,7 +92,6 @@ class AttackLM():
                 conv.append_message(conv.roles[1], init_message)
                 
                 current_prompt = conv.get_prompt()
-                print("\nCURRENT_PROMPT:", current_prompt)
                 if not conv.sep2 is None:
                     current_prompt = current_prompt[:-len(conv.sep2)]
                 full_prompts.append(current_prompt)
@@ -100,6 +99,8 @@ class AttackLM():
         for attempt in range(self.max_n_attack_attempts):
             # Subset conversations based on indices to regenerate
             full_prompts_subset = [full_prompts[i] for i in indices_to_regenerate]
+
+            print("\nThe prompts are: ", full_prompts_subset)
 
             # Generate outputs 
             outputs_list = self.model.batched_generate(full_prompts_subset,
