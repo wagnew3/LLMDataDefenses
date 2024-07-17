@@ -90,7 +90,6 @@ class AttackLM():
                 full_prompts.append(conv.to_openai_api_messages())
             else:
                 conv.append_message(conv.roles[1], init_message)
-                print(conv)
                 
                 current_prompt = conv.get_prompt()
                 if conv.sep2 is None:
