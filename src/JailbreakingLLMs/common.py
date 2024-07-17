@@ -15,6 +15,7 @@ def extract_json(s, expected_keys=["improvement","prompt"]):
         dict: A dictionary containing the extracted values.
         str: The cleaned JSON string.
     """
+    print("\n Model gives response:", s)
     # Extract the string that looks like a JSON
     start_pos = s.find("{") 
     end_pos = s.find("}") + 1  # +1 to include the closing brace
@@ -51,3 +52,6 @@ def conv_template(template_name):
     if template.name == 'llama-2':
         template.sep2 = template.sep2.strip()
     return template
+
+if __name__ == "__main__":
+    print(conv_template("OpenAssistant/oasst-sft-4-pythia-12b-epoch-3.5"))
