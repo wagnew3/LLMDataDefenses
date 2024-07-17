@@ -91,7 +91,11 @@ class AttackLM():
             else:
                 conv.append_message(conv.roles[1], init_message)
                 print(conv)
-                full_prompts.append(conv.get_prompt()[:-len(conv.sep2)])
+                
+                current_prompt = conv.get_prompt()
+                if conv.sep2 is None:
+                    current_prompt = current_prompt[:-len(conv.sep2)]
+                full_prompts.append(current_prompt)
             
         for attempt in range(self.max_n_attack_attempts):
             # Subset conversations based on indices to regenerate
