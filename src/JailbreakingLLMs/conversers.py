@@ -269,7 +269,7 @@ def get_model_path_and_template(model_name):
         },
         "finetuned-pythia": {
             "path": "finetuned-pythia",
-            "template": "palm-2" #Using a template that is pre-included
+            "template": "vicuna_v1.1" #Using a template that is pre-included
         }
     }
     path, template = full_model_dict[model_name]["path"], full_model_dict[model_name]["template"]
