@@ -102,7 +102,7 @@ def run_exps(args, defenses):
             args.attack_type,
             jailbreaks,
             bio,
-            from_examples= 'finetuned' in args.attack_model
+            from_examples = True
         )
         # print(system_prompt)
 
