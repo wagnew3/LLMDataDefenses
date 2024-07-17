@@ -92,7 +92,8 @@ class AttackLM():
                 conv.append_message(conv.roles[1], init_message)
                 
                 current_prompt = conv.get_prompt()
-                if conv.sep2 is None:
+                print("\nCURRENT_PROMPT:", current_prompt)
+                if not conv.sep2 is None:
                     current_prompt = current_prompt[:-len(conv.sep2)]
                 full_prompts.append(current_prompt)
             
