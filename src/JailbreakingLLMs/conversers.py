@@ -100,8 +100,6 @@ class AttackLM():
             # Subset conversations based on indices to regenerate
             full_prompts_subset = [full_prompts[i] for i in indices_to_regenerate]
 
-            print("\nThe prompts are: ", full_prompts_subset)
-
             # Generate outputs 
             outputs_list = self.model.batched_generate(full_prompts_subset,
                                                         max_n_tokens = self.max_n_tokens,  
