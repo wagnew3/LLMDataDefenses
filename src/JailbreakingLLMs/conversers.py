@@ -90,6 +90,7 @@ class AttackLM():
                 full_prompts.append(conv.to_openai_api_messages())
             else:
                 conv.append_message(conv.roles[1], init_message)
+                print(conv)
                 full_prompts.append(conv.get_prompt()[:-len(conv.sep2)])
             
         for attempt in range(self.max_n_attack_attempts):
@@ -259,7 +260,7 @@ def get_model_path_and_template(model_name):
         },
         "finetuned-pythia": {
             "path": "finetuned-pythia",
-            "template": "finetuned-pythia"
+            "template": "OpenAssistant/oasst-sft-4-pythia-12b-epoch-3.5" #Using a template that is pre-included
         }
     }
     path, template = full_model_dict[model_name]["path"], full_model_dict[model_name]["template"]
