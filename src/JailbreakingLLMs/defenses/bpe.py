@@ -56,11 +56,16 @@ def tokenize_word(merge_rules, word, dropout=0.0,
     
     # Subword tokens
     sw_tokens = list(word)
+    if len(sw_tokens)<1:
+        return sw_tokens
 
     # Add sentinels
     if always_merge_sentinels:
-        sw_tokens = [sentinels[0] + sw_tokens[0]] + sw_tokens[1:]
-        sw_tokens = sw_tokens[:-1] + [sw_tokens[-1] + sentinels[1]]
+        try:
+            sw_tokens = [sentinels[0] + sw_tokens[0]] + sw_tokens[1:]
+            sw_tokens = sw_tokens[:-1] + [sw_tokens[-1] + sentinels[1]]
+        except:
+            u=0
     else:
         beg_sentinel = [sentinels[0]] if len(sentinels[0]) > 0 else []
         end_sentinel = [sentinels[1]] if len(sentinels[1]) > 0 else []
