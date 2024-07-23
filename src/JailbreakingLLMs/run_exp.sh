@@ -2,7 +2,7 @@
 #SBATCH --job-name=myjob
 #SBATCH --output=myjob.out
 #SBATCH --error=myjob.err
-#SBATCH --partition=compute
+#SBATCH --partition=general
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=2
