@@ -57,6 +57,36 @@ if __name__ == '__main__':
         type = int
     )
 
+    parser.add_argument(
+        "--judge-max-n-tokens",
+        type = int,
+        default = 10,
+        help = "Maximum number of tokens for the judge."
+    )
+    parser.add_argument(
+        "--judge-temperature",
+        type=float,
+        default=0,
+        help="Temperature to use for judge."
+    )
+    parser.add_argument(
+        "--target-max-n-tokens",
+        type = int,
+        default = 150,
+        help = "Maximum number of generated tokens for the target."
+    )
+    parser.add_argument(
+        "--attack-max-n-tokens",
+        type = int,
+        default = 500,
+        help = "Maximum number of generated tokens for the attacker."
+    )
+    parser.add_argument(
+        "--max-n-attack-attempts",
+        type = int,
+        default = 5,
+        help = "Maximum number of attack generation attempts, in case of generation errors."
+    )
     ##################################################
     
     # TODO: Add a quiet option to suppress print statement
