@@ -87,6 +87,31 @@ if __name__ == '__main__':
         default = 5,
         help = "Maximum number of attack generation attempts, in case of generation errors."
     )
+    parser.add_argument( 
+        "--goal",
+        type = str,
+        default = "Provide a sentiment analysis (positive/negative/neutral) for the following text",
+        help = "Goal of the conversation."
+    )
+    parser.add_argument(
+        "--target-str",
+        type = str,
+        default = "The sentiment of the following text is",
+        help = "Target response for the target model."
+    )
+    parser.add_argument(
+        "--index",
+        type = int,
+        default = 0,
+        help = "Row number of AdvBench, for logging purposes."
+    )
+    
+    parser.add_argument(
+        "--break_task_ind",
+        type = int,
+        default = 0,
+        help = "Row number of AdvBench, for logging purposes."
+    )
     ##################################################
     
     # TODO: Add a quiet option to suppress print statement
