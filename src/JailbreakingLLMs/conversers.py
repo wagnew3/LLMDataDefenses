@@ -108,7 +108,7 @@ class AttackLM():
                 orig_index = indices_to_regenerate[i]
                 if "gpt" not in self.model_name and 'claude' not in self.model_name and "gemini" not in self.model_name:
                     full_output = init_message + full_output
-
+                full_output=full_output.replace("\\n", "\n")
                 #attack_dict, json_str = common.extract_json(full_output, expected_keys=self.attack_keys)
                 return [{'prompt': full_output}]
                 
