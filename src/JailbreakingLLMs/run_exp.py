@@ -112,9 +112,19 @@ if __name__ == '__main__':
         default = 0,
         help = "Row number of AdvBench, for logging purposes."
     )
-    ##################################################
-    
-    # TODO: Add a quiet option to suppress print statement
+        parser.add_argument(
+        "--n-streams",
+        type = int,
+        default = 5,
+        help = "Number of concurrent jailbreak conversations. If this is too large, then there may be out of memory errors."
+    )
+
+    parser.add_argument(
+        "--keep-last-n",
+        type = int,
+        default = 3,
+        help = "Number of responses to save in conversation history of attack model. If this is too large, then it may exceed the context window of the model."
+    )
     
     args = parser.parse_args()
     run_exps(args, [args.countermeasure])
