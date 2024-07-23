@@ -662,7 +662,7 @@ if __name__ == '__main__':
 
     # Smaller experiment
 
-    target_models=["gpt-4o-2024-05-13"]#["gemini-1.5-pro"]#"claude-3-5-sonnet-20240620"]
+    target_models=["vicuna"]#["gemini-1.5-pro"]#"claude-3-5-sonnet-20240620"]
     
     datasets=["wikibios"]# , "llmprivacy", "RAG"
     
