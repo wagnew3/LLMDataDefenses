@@ -1,3 +1,6 @@
+import argparse
+from main import run_exps
+
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
