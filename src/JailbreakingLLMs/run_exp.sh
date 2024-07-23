@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=myjob
-#SBATCH --output=myjob.out
-#SBATCH --error=myjob.err
+#SBATCH --output=%j-output.out
+#SBATCH --error=%j-output.err
 #SBATCH --partition=general
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
