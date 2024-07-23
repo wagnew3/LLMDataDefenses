@@ -112,7 +112,7 @@ if __name__ == '__main__':
         default = 0,
         help = "Row number of AdvBench, for logging purposes."
     )
-        parser.add_argument(
+    parser.add_argument(
         "--n-streams",
         type = int,
         default = 5,
