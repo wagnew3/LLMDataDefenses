@@ -664,7 +664,7 @@ if __name__ == '__main__':
 
     target_models=["vicuna"]#["gemini-1.5-pro"]#"claude-3-5-sonnet-20240620"]
     
-    datasets=["wikibios"]# , "llmprivacy", "RAG"
+    datasets=["wikibios" , "llmprivacy", "RAG"]
     
     slurm=True
     print(f"Starting {num_threads_needed} threads")
@@ -719,8 +719,8 @@ if __name__ == '__main__':
                                     #x = threading.Thread(target=run_exps, args=(args,[countermeasure]))
                                     #x.start()
                                 if slurm:
-                                    print(f'''sbatch run_exp.sh "{args.attack_model}" "{args.dataset}" "{args.target_model}" "{countermeasure}" "{args.judge_model}" "{args.attack_type}" "{args.break_task}" "{args.defense_length}" "{args.num_defen_instances}"''')
-                                    exit()
+                                    # print(f'''sbatch run_exp.sh "{args.attack_model}" "{args.dataset}" "{args.target_model}" "{countermeasure}" "{args.judge_model}" "{args.attack_type}" "{args.break_task}" "{args.defense_length}" "{args.num_defen_instances}"''')
+                                    # exit()
                                     os.system(f'''sbatch run_exp.sh "{args.attack_model}" "{args.dataset}" "{args.target_model}" "{countermeasure}" "{args.judge_model}" "{args.attack_type}" "{args.break_task}" "{args.defense_length}" "{args.num_defen_instances}"''')
                                 else:
                                     run=pool.apply_async(run_exps, args=(copy.deepcopy(args),[countermeasure]))
