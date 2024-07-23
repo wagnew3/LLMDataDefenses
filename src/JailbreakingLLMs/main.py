@@ -666,6 +666,7 @@ if __name__ == '__main__':
     
     datasets=["wikibios"]# , "llmprivacy", "RAG"
     
+    slurm=True
     print(f"Starting {num_threads_needed} threads")
     all_parallel_runs=[]
     with mp.Pool(processes=16, maxtasksperchild=1) as pool:
