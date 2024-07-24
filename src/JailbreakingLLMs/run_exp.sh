@@ -7,7 +7,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=2
 #SBATCH --time=2:00:00
-#SBATCH --gres=gpu:1 
+#SBATCH --gres=gpu:a6000:1 
 
 # Your job commands go here
 cd /home/wagnew/github/LLMDataDefenses/src/JailbreakingLLMs
