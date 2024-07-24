@@ -102,7 +102,7 @@ if __name__ == '__main__':
     # load run results
     for dataset in ['wikibios', 'llmprivacy', 'RAG']:
         exp_results=[]
-        results_dir="/home/willie/github/LLMDataDefenses/results/experiments/full_exps/wikibios/test_vicuna/experiments"
+        results_dir="/home/willie/github/LLMDataDefenses/results/experiments/full_exps/vicuna/experiments"
         for file in os.listdir(results_dir):
             if file[-2:]=='.p':
                 results_file=os.path.join(results_dir, file)
