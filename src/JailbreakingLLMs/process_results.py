@@ -12,7 +12,7 @@ import math
 
 def get_text_ratios_test():
     exp_results=[]
-    results_dir='/home/willie/github/LLMDataDefenses/results/experiments/full_exps/wikibios'
+    results_dir="/home/willie/github/LLMDataDefenses/results/experiments/full_exps/gpt4o"
     for file in os.listdir(results_dir):
         if file[-2:]=='.p':
             results_file=os.path.join(results_dir, file)
@@ -57,22 +57,35 @@ def get_text_ratios_test():
         a=len(defense_methods)
         for defense_method_ind in range(len(defense_methods)):
             defense_method=defense_methods[defense_method_ind]
-            defense_results=[]
-            
-            for countermeasure in countermeasures:
-                countermeasure_perf=0
-                num_countermeasure_tests=0
-                for defense_length in defense_lengths:
-                    for task in tasks:
-                        task_scores=defense_method_results[model][defense_method][countermeasure][defense_length][task]['judge_defense_score']
-                        for task_score_ind in range(len(task_scores)):
-                            defense_success.append(task_scores[task_score_ind][-1]>=7)
-                            a=len(defense_method_results[model][defense_method][countermeasure][defense_length][task]['defense'][task_score_ind][0])
-                            b=len(defense_method_results[model][defense_method][countermeasure][defense_length][task]['undefended_text'])
+            if defense_method=='generate_jailbreaks':
+                defense_results=[]
+                
+                for countermeasure in countermeasures:
+                    countermeasure_perf=0
+                    num_countermeasure_tests=0
+                    for defense_length in defense_lengths:
+                        for task in tasks:
                             try:
-                                text_ratios.append(len(defense_method_results[model][defense_method][countermeasure][defense_length][task]['defense'][task_score_ind][0])/len(defense_method_results[model][defense_method][countermeasure][defense_length][task]['undefended_text'][task_score_ind]))
+                                task_scores=defense_method_results[model][defense_method][countermeasure][defense_length][task]['judge_defense_score']
                             except:
-                                u=0
+                                print('error!', model, defense_method, countermeasure, task)
+                                continue
+                            for task_score_ind in range(len(task_scores)):
+                                defense_success.append(task_scores[task_score_ind][-1]>=7)
+                                if task==None: #RAG
+                                    protection_length=len(defense_method_results[model][defense_method][countermeasure][defense_length][task]['defense'][task_score_ind][-1])
+                                    undefended_length=len(defense_method_results[model][defense_method][countermeasure][defense_length][task]['undefended_text'][task_score_ind][0])
+                                else:
+                                    protection_length=len(defense_method_results[model][defense_method][countermeasure][defense_length][task]['defense'][task_score_ind][-1])
+                                    undefended_length=len(defense_method_results[model][defense_method][countermeasure][defense_length][task]['undefended_text'][task_score_ind])
+                                
+                                if protection_length/undefended_length>1:
+                                    u=0
+                                
+                                text_ratios.append(protection_length/undefended_length)
+                            # except:
+                            #     print('error!', model, defense_method, countermeasure, task)
+                        
         a, b = np.polyfit(text_ratios, defense_success, 1)
         fit_equation = lambda x: a * x + b 
         X_fit = np.linspace(min(text_ratios), max(text_ratios), 1000)
@@ -81,6 +94,7 @@ def get_text_ratios_test():
     
         # Generate some data, you don't have to do this, as you already have your data
         text_ratios=np.array(text_ratios)
+        mean_ratio=np.mean(text_ratios)
         defense_success=np.array(defense_success)
         # Plot the actual data
         plt.plot(text_ratios, defense_success, ".", label="Data");
@@ -92,17 +106,23 @@ def get_text_ratios_test():
         # plt.plot(text_ratios, func(text_ratios, *optimizedParameters), label="fit");
         plt.xlabel("Ratio of Defense Length to Text Length")
         plt.ylabel("Defense Success Rate")
+        
+        ax.set_xscale('log')
         # Show the graph
         plt.legend()
+        plt.tight_layout()
+        plt.savefig(f'/home/willie/github/LLMDataDefenses/results/experiments/defense_text_ratio.png')
         plt.show()
     return text_ratios, defense_success
 
+countermeasure_name_map={'smoothllm':'smoothllm', 'ppl-5-3.5':'ppl-5-3.5', 'proactive':'proactive', 'llm-based':'llm-based','sandwich':'sandwich', 'random_seq':'random_seq', 'delimiters':'delimiters', 'xml':'xml', 'paraphrasing':'paraphrasing', 'retokenization':'retokenization', '': 'no countermeasure'}
+defense_name_map={'generate_jailbreaks': 'false answer (ours)', 'substitute': 'substitute (ours)', 'nothing': 'no protection'}
 if __name__ == '__main__':
     #text_ratios, defense_success=get_text_ratios_test()
     # load run results
     for dataset in ['wikibios', 'llmprivacy', 'RAG']:
         exp_results=[]
-        results_dir="/home/willie/github/LLMDataDefenses/results/experiments/full_exps/vicuna/experiments"
+        results_dir="/home/willie/github/LLMDataDefenses/results/experiments/full_exps/claude"
         for file in os.listdir(results_dir):
             if file[-2:]=='.p':
                 results_file=os.path.join(results_dir, file)
@@ -118,14 +138,16 @@ if __name__ == '__main__':
             defense_method=exp_result['args'].attack_type
             task=exp_result['args'].break_task
             model=exp_result['args'].target_model
-            countermeasure=exp_result['args'].countermeasure[0]
-            if not model in defense_method_results:
-                defense_method_results[model]={}
-            if defense_method not in defense_method_results[model]:
-                defense_method_results[model][defense_method]={}
-            if countermeasure not in defense_method_results[model][defense_method]:
-                defense_method_results[model][defense_method][countermeasure]={}
-            defense_method_results[model][defense_method][countermeasure][task]=exp_result#['judge_defense_score']
+            exp_dataset=exp_result['args'].dataset
+            if exp_dataset==dataset:
+                countermeasure=exp_result['args'].countermeasure[0]
+                if not model in defense_method_results:
+                    defense_method_results[model]={}
+                if defense_method not in defense_method_results[model]:
+                    defense_method_results[model][defense_method]={}
+                if countermeasure not in defense_method_results[model][defense_method]:
+                    defense_method_results[model][defense_method][countermeasure]={}
+                defense_method_results[model][defense_method][countermeasure][task]=exp_result#['judge_defense_score']
         #Make bar charts
         for model in defense_method_results:
             defense_methods=list(defense_method_results[model].keys())
@@ -154,6 +176,7 @@ if __name__ == '__main__':
                             task_scores=defense_method_results[model][defense_method][countermeasure][task]['judge_defense_score']
                         except:
                             print('error!', model, defense_method, countermeasure, task)
+                            continue
                         if len(task_scores)!=50:
                             print(model, defense_method, countermeasure, task)
                         for task_score in task_scores:
@@ -173,7 +196,7 @@ if __name__ == '__main__':
                         
                     
                     
-                ax.bar(x-0.3+width*defense_method_ind, defense_results, yerr=defense_ci, width=width, color=colors[defense_method_ind], align='center', label=defense_method)
+                ax.bar(x-0.3+width*defense_method_ind, defense_results, yerr=defense_ci, width=width, color=colors[defense_method_ind], align='center', label=defense_name_map[defense_method])
         
         
             
@@ -187,7 +210,7 @@ if __name__ == '__main__':
             # tukey.plot_simultaneous() 
         
             ax.set_xticks(x)
-            ax.set_xticklabels(countermeasures, rotation=45)
+            ax.set_xticklabels([countermeasure_name_map[countermeasure] for countermeasure in countermeasures], rotation=45)
             ax.legend()
             ax.set_xlabel("Countermeasure Type")
             ax.set_ylabel("Defense Success Rate")
