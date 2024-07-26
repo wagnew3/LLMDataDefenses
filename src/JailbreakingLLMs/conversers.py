@@ -208,6 +208,18 @@ def load_indiv_model(model_name, device=None):
         current_dir = os.getcwd()
         checkpoint_dir = os.path.join(current_dir, "policy.pt")
         lm = FinetunedCheckpoint(model_name, model, tokenizer, checkpoint_dir)
+    elif model_name in ["finetuned-vicuna"]:
+        model = AutoModelForCausalLM.from_pretrained(
+            "lmsys/vicuna-7b-v1.5",
+            cache_dir=".cache",
+            low_cpu_mem_usage=True,
+            device_map="balanced"
+        )
+        tokenizer = AutoTokenizer.from_pretrained("lmsys/vicuna-7b-v1.5")
+        checkpoint_dir = "/data/user_data/yifanwu6/yifanwu6/07252337test/checkpoints/policy.pt"
+        lm = FinetunedCheckpoint(model_name, model, tokenizer, checkpoint_dir)
+
+    
         
     else:
         model = AutoModelForCausalLM.from_pretrained(

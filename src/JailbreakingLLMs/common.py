@@ -58,4 +58,4 @@ def conv_template(template_name):
     return template
 
 if __name__ == "__main__":
-    print(conv_template("OpenAssistant/oasst-sft-4-pythia-12b-epoch-3.5"))
+    print(conv_template("vicuna_v1.1"))
