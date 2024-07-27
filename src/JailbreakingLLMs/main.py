@@ -613,6 +613,11 @@ if __name__ == '__main__':
         default = 5,
         help = "Length of defense."
     )
+    
+    parser.add_argument(
+        "--experiment_num",
+        type = int,
+    )
     ##################################################
     
     # TODO: Add a quiet option to suppress print statement
@@ -666,9 +671,10 @@ if __name__ == '__main__':
     
     datasets=["wikibios", "llmprivacy", "RAG"]
     
-    slurm=True
+    slurm=False
     print(f"Starting {num_threads_needed} threads")
     all_parallel_runs=[]
+    exp_run_num=0
     with mp.Pool(processes=16, maxtasksperchild=1) as pool:
         for dataset in datasets:
             args.dataset=dataset
@@ -722,8 +728,10 @@ if __name__ == '__main__':
                                     # exit()
                                     os.system(f'''sbatch run_exp.sh "{args.attack_model}" "{args.dataset}" "{args.target_model}" "{countermeasure}" "{args.judge_model}" "{args.attack_type}" "{args.break_task}" "{args.defense_length}" "{args.num_defen_instances}"''')
                                 else:
-                                    run=pool.apply_async(run_exps, args=(copy.deepcopy(args),[countermeasure]))
-                                    all_parallel_runs.append(run)
+                                    # if exp_run_num==args.exp_num:
+                                    #     run=pool.apply_async(run_exps, args=(copy.deepcopy(args),[countermeasure]))
+                                    #     all_parallel_runs.append(run)
+                                    exp_run_num+=1
                                 #p = Process(target=run_exps, args=(args,[countermeasure]))
                                 #p.Daemon = True
                                 #p.start()
