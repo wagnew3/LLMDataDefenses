@@ -728,7 +728,7 @@ if __name__ == '__main__':
                                     # exit()
                                     os.system(f'''sbatch run_exp.sh "{args.attack_model}" "{args.dataset}" "{args.target_model}" "{countermeasure}" "{args.judge_model}" "{args.attack_type}" "{args.break_task}" "{args.defense_length}" "{args.num_defen_instances}"''')
                                 else:
-                                    if exp_run_num==args.exp_num:
+                                    if exp_run_num==args.experiment_num:
                                         run=pool.apply_async(run_exps, args=(copy.deepcopy(args),[countermeasure]))
                                         all_parallel_runs.append(run)
                                     exp_run_num+=1
