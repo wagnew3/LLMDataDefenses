@@ -721,8 +721,8 @@ if __name__ == '__main__':
                                 args.attack_type=defense_type
                                 args.break_task=break_task
                                 args.defense_length=defense_length
-                                run_exps(args, [countermeasure])
-                                exit()
+                                # run_exps(args, [countermeasure])
+                                # exit()
                                     #x = threading.Thread(target=run_exps, args=(args,[countermeasure]))
                                     #x.start()
                                 if slurm:
