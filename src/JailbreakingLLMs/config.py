@@ -1,4 +1,4 @@
-VICUNA_PATH = "meta-llama/Meta-Llama-3.1-70B-Instruct "
+VICUNA_PATH = "meta-llama/Meta-Llama-3.1-70B-Instruct"
 LLAMA_PATH = "/home/Llama-2-7b-chat-hf"
 
 ATTACK_TEMP = 1
