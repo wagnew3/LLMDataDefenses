@@ -8,6 +8,10 @@ import defenses.smooth as smooth
 from judges import load_judge
 import system_prompts
 import re
+from transformers import pipeline
+import torch
+from torch.nn.functional import softmax
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 class Layered_Defenses():
     
@@ -16,7 +20,7 @@ class Layered_Defenses():
         for defense_name in defenses_list:
             if defense_name in ['ppl', 'proactive', 'llm-based']:
                 self.defenses.append(Detect_Attack(defense_name, defender_lm))
-            elif defense_name in ['sandwich', 'random_seq', 'delimiters', 'xml', 'paraphrasing', 'retokenization']:
+            elif defense_name in ['sandwich', 'random_seq', 'delimiters', 'xml', 'paraphrasing', 'retokenization', 'prompt_guard']:
                 self.defenses.append(Prompt_Modification_Defense(defense_name, defender_lm))
             elif defense_name=="smoothllm":
                 self.defenses.append(Smooth_LLM(5, defender_lm))
@@ -129,6 +133,36 @@ class Prompt_Modification_Defense(Prompt_Injection_Defense):
             self.retokenizer = BpeOnlineTokenizer(bpe_dropout_rate=0.1, merge_table=merge_table)
         if self.defense == 'paraphrasing':
             self.model=TargetLM(defender_lm, 500, 0, 1.0)
+        if self.defense=='prompt_guard':
+            #self.classifier = pipeline("text-classification", model="meta-llama/Prompt-Guard-86M")
+    
+            model_id = "meta-llama/Prompt-Guard-86M"
+            self.tokenizer = AutoTokenizer.from_pretrained(model_id)
+            self.model = AutoModelForSequenceClassification.from_pretrained(model_id)
+
+    def get_class_probabilities(self, text, temperature=1.0, device='cpu'):
+        """
+        Evaluate the model on the given text with temperature-adjusted softmax.
+        Note, as this is a DeBERTa model, the input text should have a maximum length of 512.
+        
+        Args:
+            text (str): The input text to classify.
+            temperature (float): The temperature for the softmax function. Default is 1.0.
+            device (str): The device to evaluate the model on.
+            
+        Returns:
+            torch.Tensor: The probability of each class adjusted by the temperature.
+        """
+        # Encode the text
+        inputs = self.tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=512).to(device)
+        # Get logits from the model
+        with torch.no_grad():
+            logits = self.model(**inputs).logits
+        # Apply temperature scaling
+        scaled_logits = logits / temperature
+        # Apply softmax to get probabilities
+        probabilities = softmax(scaled_logits, dim=-1)
+        return (probabilities[0, 1] + probabilities[0, 2]).item()       
     
     def preprocess_defend(self, prompt, input):
         if self.defense == 'sandwich':
@@ -152,6 +186,17 @@ class Prompt_Modification_Defense(Prompt_Injection_Defense):
             return data_prompt
         elif self.defense == 'text':
             return prompt, f'\nText: {input}'
+        elif self.defense=='prompt_guard':
+            sentances=input.split(".")
+            safe_sentances=""
+            for sentance in sentances:
+                result=self.get_class_probabilities("Ignore the following text.")
+                if result<0.5:
+                    safe_sentances+=sentance
+                else:
+                    u=0
+            return prompt, safe_sentances
+                
 
 class Smooth_LLM(Prompt_Injection_Defense):
     
