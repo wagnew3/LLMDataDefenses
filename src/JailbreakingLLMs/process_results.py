@@ -122,7 +122,7 @@ if __name__ == '__main__':
     # load run results
     for dataset in ['wikibios', 'llmprivacy', 'RAG']:
         exp_results=[]
-        results_dir="/home/willie/github/LLMDataDefenses/results/experiments/full_exps/claude"
+        results_dir="/home/willie/github/LLMDataDefenses/results/experiments/full_exps/vicuna/experiments_13b/experiments"
         for file in os.listdir(results_dir):
             if file[-2:]=='.p':
                 results_file=os.path.join(results_dir, file)
@@ -167,37 +167,39 @@ if __name__ == '__main__':
                 defense_results=[]
                 defense_ci=[]
         
-                for countermeasure in countermeasures:
-                    countermeasure_perf=0
-                    num_countermeasure_tests=0
-                    countermeasure_results=[]
-                    for task in tasks:
-                        try:
-                            task_scores=defense_method_results[model][defense_method][countermeasure][task]['judge_defense_score']
-                        except:
-                            print('error!', model, defense_method, countermeasure, task)
-                            continue
-                        if len(task_scores)!=50:
-                            print(model, defense_method, countermeasure, task)
-                        for task_score in task_scores:
-                            if len(task_score)>0:
-                                countermeasure_perf+=task_score[-1]>=7
-                                countermeasure_results.append(task_score[-1]>=7)
-                            num_countermeasure_tests+=1
-                    countermeasure_perf=countermeasure_perf/num_countermeasure_tests
-                    defense_results.append(countermeasure_perf)
-                    ci=st.t.interval(0.95, df=len(countermeasure_results)-1, 
-                      loc=np.mean(countermeasure_results), 
-                      scale=st.sem(countermeasure_results))
-                    if math.isnan(ci[1]):
-                        defense_ci.append(0)
-                    else:
-                        defense_ci.append((ci[1]-ci[0])/2.0)
+                try:
+                    for countermeasure in countermeasures:
+                        countermeasure_perf=0
+                        num_countermeasure_tests=0
+                        countermeasure_results=[]
+                        for task in tasks:
+                            try:
+                                task_scores=defense_method_results[model][defense_method][countermeasure][task]['judge_defense_score']
+                            except:
+                                print('error!', model, defense_method, countermeasure, task)
+                                continue
+                            if len(task_scores)!=50:
+                                print(model, defense_method, countermeasure, task)
+                            for task_score in task_scores:
+                                if len(task_score)>0:
+                                    countermeasure_perf+=task_score[-1]>=7
+                                    countermeasure_results.append(task_score[-1]>=7)
+                                num_countermeasure_tests+=1
+                        countermeasure_perf=countermeasure_perf/num_countermeasure_tests
+                        defense_results.append(countermeasure_perf)
+                        ci=st.t.interval(0.95, df=len(countermeasure_results)-1, 
+                          loc=np.mean(countermeasure_results), 
+                          scale=st.sem(countermeasure_results))
+                        if math.isnan(ci[1]):
+                            defense_ci.append(0)
+                        else:
+                            defense_ci.append((ci[1]-ci[0])/2.0)
+                            
                         
-                    
-                    
-                ax.bar(x-0.3+width*defense_method_ind, defense_results, yerr=defense_ci, width=width, color=colors[defense_method_ind], align='center', label=defense_name_map[defense_method])
-        
+                        
+                    ax.bar(x-0.3+width*defense_method_ind, defense_results, yerr=defense_ci, width=width, color=colors[defense_method_ind], align='center', label=defense_name_map[defense_method])
+                except:
+                    print('error!')
         
             
 
@@ -218,7 +220,7 @@ if __name__ == '__main__':
             ax.set_ylim([0, 1])
             #ax.autoscale(tight=True)
             plt.tight_layout()
-            plt.savefig(f'/home/willie/github/LLMDataDefenses/results/experiments/{dataset}_full_results.png')
+            plt.savefig(f'/home/willie/github/LLMDataDefenses/results/experiments/full_exps/vicuna/experiments_13b/experiments/{dataset}_full_results.png')
             plt.show()
         
             u=0
