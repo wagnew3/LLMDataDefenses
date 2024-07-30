@@ -17,4 +17,4 @@
 echo "export OPENAI_API_KEY='sk-proj-I576oBGHSiqwLsllEH4mT3BlbkFJpcUAYFzDjAJij5EdOCOW'" >> ~/.zshrc
 source ~/.zshrc
 
-python run_exp.py --dataset="wikibios" --attack_type="generate_jailbreaks" --attack-model="finetuned-vicuna" --num_defen_instances=1 --target_model="vicuna" --attack-max-n-tokens=1200  #experiment arguements
+python run_exp.py --dataset="wikibios" --attack_type="generate_jailbreaks" --attack-model="finetuned-vicuna" --num_defen_instances=1 --target_model="vicuna" --attack-max-n-tokens=300  #experiment arguements
