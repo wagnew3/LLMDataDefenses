@@ -285,7 +285,7 @@ def get_model_path_and_template(model_name):
             "template": "vicuna_v1.1" #Using a template that is pre-included
         },
         "finetuned-vicuna": {
-            "path": "finetuned-pythia",
+            "path": "finetuned-vicuna",
             "template": "vicuna_v1.1"
         }
     }
