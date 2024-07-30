@@ -52,7 +52,7 @@ class AttackLM():
         else:
             self.attack_keys=["prompt"]
         
-        if "vicuna" in model_name or "llama" in model_name:
+        if ("vicuna" in model_name or "llama" in model_name) and not "finetuned" in model_name:
             self.model.extend_eos_tokens()
 
     def get_attack(self, convs_list, prompts_list):
