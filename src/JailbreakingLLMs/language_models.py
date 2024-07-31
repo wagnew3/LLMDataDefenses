@@ -153,8 +153,46 @@ class FinetunedCheckpoint(LanguageModel):
         print("\n Model gives response:", response, "RESPONSE ENDS")
         return response # Hugging Face generates with prompt included; remove the prompt from response
 
-    def batched_generate(self, prompts_list, max_n_tokens, temperature, top_p):
-        return [self.generate(prompt, max_n_tokens, temperature, top_p) for prompt in prompts_list]  
+    def batched_generate(self, full_prompts_list, max_n_tokens, temperature, top_p):
+        #return [self.generate(prompt, max_n_tokens, temperature, top_p) for prompt in full_prompts_list]  
+        inputs = self.tokenizer(full_prompts_list, return_tensors='pt', padding=True)
+        inputs = {k: v.to(self.model.device.index) for k, v in inputs.items()}
+    
+        # Batch generation
+        if temperature > 0:
+            output_ids = self.model.generate(
+                **inputs,
+                max_new_tokens=max_n_tokens, 
+                do_sample=True,
+                temperature=temperature,
+                eos_token_id=self.eos_token_ids,
+                top_p=top_p,
+            )
+        else:
+            output_ids = self.model.generate(
+                **inputs,
+                max_new_tokens=max_n_tokens, 
+                do_sample=False,
+                eos_token_id=self.eos_token_ids,
+                top_p=1,
+                temperature=1, # To prevent warning messages
+            )
+            
+        # If the model is not an encoder-decoder type, slice off the input tokens
+        if not self.model.config.is_encoder_decoder:
+            output_ids = output_ids[:, inputs["input_ids"].shape[1]:]
+
+        # Batch decoding
+        outputs_list = self.tokenizer.batch_decode(output_ids, skip_special_tokens=True)
+
+        for key in inputs:
+            inputs[key].to('cpu')
+        output_ids.to('cpu')
+        del inputs, output_ids
+        gc.collect()
+        torch.cuda.empty_cache()
+
+        return outputs_list
 
 
 
