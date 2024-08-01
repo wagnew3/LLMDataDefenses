@@ -1,4 +1,4 @@
-VICUNA_PATH = "meta-llama/Meta-Llama-3.1-8B-Instruct"
+VICUNA_PATH = "lmsys/vicuna-7b-v1.5"
 LLAMA_PATH = "/home/Llama-2-7b-chat-hf"
 
 ATTACK_TEMP = 1

@@ -115,7 +115,7 @@ def get_text_ratios_test():
         plt.show()
     return text_ratios, defense_success
 
-countermeasure_name_map={'smoothllm':'smoothllm', 'ppl-5-3.5':'ppl-5-3.5', 'proactive':'proactive', 'llm-based':'llm-based','sandwich':'sandwich', 'random_seq':'random_seq', 'delimiters':'delimiters', 'xml':'xml', 'paraphrasing':'paraphrasing', 'retokenization':'retokenization', '': 'no countermeasure'}
+countermeasure_name_map={'smoothllm':'smoothllm', 'ppl-5-3.5':'ppl-5-3.5', 'proactive':'proactive', 'llm-based':'llm-based','sandwich':'sandwich', 'random_seq':'random_seq', 'delimiters':'delimiters', 'xml':'xml', 'paraphrasing':'paraphrasing', 'retokenization':'retokenization', '': 'no countermeasure', 'nothing': 'no countermeasure'}
 defense_name_map={'generate_jailbreaks': 'false answer (ours)', 'substitute': 'substitute (ours)', 'nothing': 'no protection'}
 if __name__ == '__main__':
     #text_ratios, defense_success=get_text_ratios_test()
@@ -127,11 +127,8 @@ if __name__ == '__main__':
             if file[-2:]=='.p':
                 results_file=os.path.join(results_dir, file)
                 exp_result=pickle.load(open(results_file, 'rb'))
-                try:
-                    def_length=exp_result['args'].defense_length
-                    exp_results.append(exp_result)
-                except:
-                    u=0
+                def_length=exp_result['args'].defense_length
+                exp_results.append(exp_result)
         
         defense_method_results={}
         for exp_result in exp_results:
@@ -220,7 +217,7 @@ if __name__ == '__main__':
             ax.set_ylim([0, 1])
             #ax.autoscale(tight=True)
             plt.tight_layout()
-            plt.savefig(f'/home/willie/github/LLMDataDefenses/results/experiments/full_exps/vicuna/experiments_13b/experiments/{dataset}_full_results.png')
+            plt.savefig(f'/home/willie/github/LLMDataDefenses/results/experiments/full_exps/vicuna/llama3_8b/experiments/{dataset}_full_results.png')
             plt.show()
         
             u=0
