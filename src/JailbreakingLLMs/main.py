@@ -198,7 +198,7 @@ def run_exps(args, defenses, doc_offset=0):
     if args.dataset=='wikibios' or args.dataset=='wikibios_website':
         bios=load_bios("../../../wikibios/train")
         random.seed(0)
-        random.shuffle(bios)
+        # random.shuffle(bios)
     elif args.dataset=='llmprivacy' or args.dataset=="llmprivacy_website":
         df = pd.read_json("hf://datasets/RobinSta/SynthPAI/synthpai.jsonl", lines=True)
         if args.break_task=='sex':
