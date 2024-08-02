@@ -1,6 +1,7 @@
 import common
 from language_models import GPT, Claude, PaLM, HuggingFace, FinetunedCheckpoint
 import torch
+import time
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from config import VICUNA_PATH, LLAMA_PATH, ATTACK_TEMP, TARGET_TEMP, ATTACK_TOP_P, TARGET_TOP_P   
 import os
@@ -101,12 +102,16 @@ class AttackLM():
             full_prompts_subset = [full_prompts[i] for i in indices_to_regenerate]
 
             # Generate outputs 
+            start_time = time.time()
             outputs_list = self.model.batched_generate(full_prompts_subset,
                                                         max_n_tokens = self.max_n_tokens,  
                                                         temperature = self.temperature,
                                                         top_p = self.top_p
                                                     )
-            
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            print("Time used:", elapsed_time)
+
             # Check for valid outputs and update the list
             new_indices_to_regenerate = []
             for i, full_output in enumerate(outputs_list):
