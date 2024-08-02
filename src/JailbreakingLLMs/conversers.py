@@ -225,7 +225,7 @@ def load_indiv_model(model_name, device=None):
     else:
         model = AutoModelForCausalLM.from_pretrained(
                 model_path, 
-                torch_dtype=torch.float16,
+                torch_dtype=torch.float32,
                 low_cpu_mem_usage=True,device_map="auto").eval()
 
         tokenizer = AutoTokenizer.from_pretrained(

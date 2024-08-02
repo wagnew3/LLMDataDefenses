@@ -132,6 +132,7 @@ class FinetunedCheckpoint(LanguageModel):
         self.model_name = model_name
         self.model = model
         self.tokenizer = tokenizer
+        self.eos_token_ids = [self.tokenizer.eos_token_id]
 
         self.device = device
 
