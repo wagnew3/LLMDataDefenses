@@ -116,19 +116,20 @@ def get_text_ratios_test():
     return text_ratios, defense_success
 
 countermeasure_name_map={'smoothllm':'smoothllm', 'ppl-5-3.5':'ppl-5-3.5', 'proactive':'proactive', 'llm-based':'llm-based','sandwich':'sandwich', 'random_seq':'random_seq', 'delimiters':'delimiters', 'xml':'xml', 'paraphrasing':'paraphrasing', 'retokenization':'retokenization', '': 'no countermeasure', 'nothing': 'no countermeasure'}
-defense_name_map={'generate_jailbreaks': 'false answer (ours)', 'substitute': 'substitute (ours)', 'nothing': 'no protection'}
+defense_name_map={'generate_jailbreaks': 'false answer (ours)', 'substitute': 'substitute (ours)', 'nothing': 'no protection', 'jailbreaks': 'false answer unseen (ours)'}
 if __name__ == '__main__':
     #text_ratios, defense_success=get_text_ratios_test()
     # load run results
     for dataset in ['wikibios', 'llmprivacy', 'RAG']:
         exp_results=[]
-        results_dir="/home/willie/github/LLMDataDefenses/results/experiments/full_exps/vicuna/llama3_8b/experiments"
+        results_dir="/home/willie/github/LLMDataDefenses/results/experiments/gemini"
         for file in os.listdir(results_dir):
             if file[-2:]=='.p':
                 results_file=os.path.join(results_dir, file)
                 exp_result=pickle.load(open(results_file, 'rb'))
-                def_length=exp_result['args'].defense_length
-                exp_results.append(exp_result)
+                if isinstance(exp_result, dict):
+                    def_length=exp_result['args'].defense_length
+                    exp_results.append(exp_result)
         
         defense_method_results={}
         for exp_result in exp_results:
@@ -164,39 +165,43 @@ if __name__ == '__main__':
                 defense_results=[]
                 defense_ci=[]
         
-                try:
-                    for countermeasure in countermeasures:
-                        countermeasure_perf=0
-                        num_countermeasure_tests=0
-                        countermeasure_results=[]
-                        for task in tasks:
-                            try:
-                                task_scores=defense_method_results[model][defense_method][countermeasure][task]['judge_defense_score']
-                            except:
-                                print('error!', model, defense_method, countermeasure, task)
-                                continue
-                            if len(task_scores)!=50:
-                                print(model, defense_method, countermeasure, task)
-                            for task_score in task_scores:
-                                if len(task_score)>0:
-                                    countermeasure_perf+=task_score[-1]>=7
-                                    countermeasure_results.append(task_score[-1]>=7)
-                                num_countermeasure_tests+=1
+                for countermeasure in countermeasures:
+                    countermeasure_perf=0
+                    num_countermeasure_tests=0
+                    countermeasure_results=[]
+                    for task in tasks:
+                        try:
+                            task_scores=defense_method_results[model][defense_method][countermeasure][task]['judge_defense_score']
+                        except:
+                            print('error!', model, defense_method, countermeasure, task)
+                            continue
+                        # if len(task_scores)!=50:
+                        #     print(model, defense_method, countermeasure, task)
+                        for task_score in task_scores:
+                            if len(task_score)>0:
+                                countermeasure_perf+=task_score[-1]>=7
+                                countermeasure_results.append(task_score[-1]>=7)
+                            num_countermeasure_tests+=1
+                    if (dataset=='RAG' and num_countermeasure_tests<75) or (dataset!='RAG' and num_countermeasure_tests<25):
+                        print(model, defense_method, countermeasure, task)
+                    if num_countermeasure_tests>0:
                         countermeasure_perf=countermeasure_perf/num_countermeasure_tests
-                        defense_results.append(countermeasure_perf)
-                        ci=st.t.interval(0.95, df=len(countermeasure_results)-1, 
-                          loc=np.mean(countermeasure_results), 
-                          scale=st.sem(countermeasure_results))
-                        if math.isnan(ci[1]):
-                            defense_ci.append(0)
-                        else:
-                            defense_ci.append((ci[1]-ci[0])/2.0)
+                    else:
+                        countermeasure_perf=0
+                    defense_results.append(countermeasure_perf)
+                    ci=st.t.interval(0.95, df=len(countermeasure_results)-1, 
+                      loc=np.mean(countermeasure_results), 
+                      scale=st.sem(countermeasure_results))
+                    if math.isnan(ci[1]):
+                        defense_ci.append(0)
+                    else:
+                        defense_ci.append((ci[1]-ci[0])/2.0)
                             
                         
                         
-                    ax.bar(x-0.3+width*defense_method_ind, defense_results, yerr=defense_ci, width=width, color=colors[defense_method_ind], align='center', label=defense_name_map[defense_method])
-                except:
-                    print('error!')
+                ax.bar(x-0.3+width*defense_method_ind, defense_results, yerr=defense_ci, width=width, color=colors[defense_method_ind], align='center', label=defense_name_map[defense_method])
+                # except:
+                #     print('error!')
         
             
 
@@ -217,7 +222,7 @@ if __name__ == '__main__':
             ax.set_ylim([0, 1])
             #ax.autoscale(tight=True)
             plt.tight_layout()
-            plt.savefig(f'/home/willie/github/LLMDataDefenses/results/experiments/full_exps/vicuna/llama3_8b/experiments/{dataset}_full_results.png')
+            plt.savefig(f'{results_dir}/{dataset}_full_results.png')
             plt.show()
         
             u=0
