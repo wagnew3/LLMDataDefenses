@@ -479,8 +479,8 @@ def run_exps(args, defenses, doc_offset=0):
         
             print(f'Finished {args.attack_type}_{args.target_model}_{args.break_task}_{args.dataset}_{args.num_defen_instances}_{defenses}')
     
-        except Exception as e: 
-            print(e)
+    except Exception as e: 
+        print(e)
 
 if __name__ == '__main__':
     
