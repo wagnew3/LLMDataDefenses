@@ -12,7 +12,7 @@ import math
 
 def get_text_ratios_test():
     exp_results=[]
-    results_dir="/home/willie/github/LLMDataDefenses/results/experiments/full_exps/gpt4o"
+    results_dir="/home/willie/github/LLMDataDefenses/results/experiments/gpt4o"
     for file in os.listdir(results_dir):
         if file[-2:]=='.p':
             results_file=os.path.join(results_dir, file)
@@ -30,7 +30,7 @@ def get_text_ratios_test():
         task=exp_result['args'].break_task
         model=exp_result['args'].target_model
         countermeasure=exp_result['args'].countermeasure[0]
-        defense_length=exp_result['args'].defense_length
+        defense_length=exp_result['args'].dataset
         if not model in defense_method_results:
             defense_method_results[model]={}
         if defense_method not in defense_method_results[model]:
@@ -51,63 +51,77 @@ def get_text_ratios_test():
         tasks=list(defense_method_results[model][defense_methods[0]][countermeasures[0]][defense_lengths[0]].keys())
         
         colors=['b', 'g', 'r', 'c', 'm', 'y']
-        ax = plt.subplot(111)
+        fig, ax = plt.subplots(figsize=(6,4))
+        #ax = plt.subplot(111)
         text_ratios=[]
         defense_success=[]
         a=len(defense_methods)
-        for defense_method_ind in range(len(defense_methods)):
-            defense_method=defense_methods[defense_method_ind]
-            if defense_method=='generate_jailbreaks':
-                defense_results=[]
-                
-                for countermeasure in countermeasures:
-                    countermeasure_perf=0
-                    num_countermeasure_tests=0
-                    for defense_length in defense_lengths:
-                        for task in tasks:
-                            try:
+        for model in defense_method_results.keys():
+            for defense_method in defense_method_results[model].keys():
+                #defense_method=defense_methods[defense_method_ind]
+                if defense_method=='generate_jailbreaks':
+                    defense_results=[]
+                    
+                    for countermeasure in defense_method_results[model][defense_method].keys():
+                        countermeasure_perf=0
+                        num_countermeasure_tests=0
+                        for defense_length in defense_method_results[model][defense_method][countermeasure].keys():
+                            for task in defense_method_results[model][defense_method][countermeasure][defense_length].keys():
+                                # try:
                                 task_scores=defense_method_results[model][defense_method][countermeasure][defense_length][task]['judge_defense_score']
-                            except:
-                                print('error!', model, defense_method, countermeasure, task)
-                                continue
-                            for task_score_ind in range(len(task_scores)):
-                                defense_success.append(task_scores[task_score_ind][-1]>=7)
-                                if task==None: #RAG
-                                    protection_length=len(defense_method_results[model][defense_method][countermeasure][defense_length][task]['defense'][task_score_ind][-1])
-                                    undefended_length=len(defense_method_results[model][defense_method][countermeasure][defense_length][task]['undefended_text'][task_score_ind][0])
-                                else:
-                                    protection_length=len(defense_method_results[model][defense_method][countermeasure][defense_length][task]['defense'][task_score_ind][-1])
-                                    undefended_length=len(defense_method_results[model][defense_method][countermeasure][defense_length][task]['undefended_text'][task_score_ind])
-                                
-                                if protection_length/undefended_length>1:
-                                    u=0
-                                
-                                text_ratios.append(protection_length/undefended_length)
-                            # except:
-                            #     print('error!', model, defense_method, countermeasure, task)
-                        
-        a, b = np.polyfit(text_ratios, defense_success, 1)
-        fit_equation = lambda x: a * x + b 
-        X_fit = np.linspace(min(text_ratios), max(text_ratios), 1000)
-        Y_fit = fit_equation(X_fit)
-        plt.plot(X_fit, Y_fit, color='r', alpha=0.5, label='Linear Fit')
+                                # except:
+                                #     print('error!', model, defense_method, countermeasure, task)
+                                #     continue
+                                for task_score_ind in range(len(task_scores)):
+                                    defense_success.append(task_scores[task_score_ind][-1]>=7)
+                                    if task==None: #RAG
+                                        protection_length=len(defense_method_results[model][defense_method][countermeasure][defense_length][task]['defense'][task_score_ind][-1])
+                                        undefended_length=len(defense_method_results[model][defense_method][countermeasure][defense_length][task]['undefended_text'][task_score_ind][0])
+                                    else:
+                                        protection_length=len(defense_method_results[model][defense_method][countermeasure][defense_length][task]['defense'][task_score_ind][-1])
+                                        undefended_length=len(defense_method_results[model][defense_method][countermeasure][defense_length][task]['undefended_text'][task_score_ind])
+                                    
+                                    if protection_length/undefended_length>1:
+                                        u=0
+                                    
+                                    text_ratios.append(undefended_length/protection_length)
+                                # except:
+                                #     print('error!', model, defense_method, countermeasure, task)
+                            
+        # a, b = np.polyfit(text_ratios, defense_success, 1)
+        # fit_equation = lambda x: a * x + b 
+        # X_fit = np.linspace(min(text_ratios), max(text_ratios), 1000)
+        # Y_fit = fit_equation(X_fit)
+        # plt.plot(X_fit, Y_fit, color='r', alpha=0.5, label='Linear Fit')
     
         # Generate some data, you don't have to do this, as you already have your data
         text_ratios=np.array(text_ratios)
         mean_ratio=np.mean(text_ratios)
-        defense_success=np.array(defense_success)
+        defense_success=np.array(defense_success).astype(np.int32)
         # Plot the actual data
-        plt.plot(text_ratios, defense_success, ".", label="Data");
+        bins = np.linspace(0, np.max(text_ratios), 10)
+        bin_means = (np.histogram(text_ratios, bins, weights=defense_success)[0] /np.histogram(text_ratios, bins)[0])
+        bin_labels=np.digitize(text_ratios, bins[1:])
+        bin_cis=[]
+        for ind in range(len(bin_means)):
+            bin_vals=np.extract(bin_labels==ind, defense_success)
+            ci=st.t.interval(0.95, df=len(bin_vals)-1, 
+                      loc=np.mean(bin_vals), 
+                      scale=st.sem(bin_vals))
+            bin_cis.append((ci[1]-ci[0])/2.0)
+
+        plt.bar(bins[:-1]+(bins[1]-bins[0])/2, bin_means, width=bins[1]-bins[0], color='b', edgecolor='k',linewidth=1, yerr=bin_cis)
+        #plt.plot(text_ratios, defense_success, ".", label="Data");
     
         # The actual curve fitting happens here
         # optimizedParameters, pcov = opt.curve_fit(func, text_ratios, defense_success);
     
         # Use the optimized parameters to plot the best fit
         # plt.plot(text_ratios, func(text_ratios, *optimizedParameters), label="fit");
-        plt.xlabel("Ratio of Defense Length to Text Length")
+        plt.xlabel("Ratio of Defended Text Length to Defense Length")
         plt.ylabel("Defense Success Rate")
         
-        ax.set_xscale('log')
+        #ax.set_xscale('log')
         # Show the graph
         plt.legend()
         plt.tight_layout()
@@ -115,14 +129,14 @@ def get_text_ratios_test():
         plt.show()
     return text_ratios, defense_success
 
-countermeasure_name_map={'smoothllm':'smoothllm', 'ppl-5-3.5':'ppl-5-3.5', 'proactive':'proactive', 'llm-based':'llm-based','sandwich':'sandwich', 'random_seq':'random_seq', 'delimiters':'delimiters', 'xml':'xml', 'paraphrasing':'paraphrasing', 'retokenization':'retokenization', '': 'no countermeasure', 'nothing': 'no countermeasure'}
+countermeasure_name_map={'smoothllm':'smoothllm', 'ppl-5-3.5':'ppl-5-3.5', 'proactive':'proactive', 'llm-based':'llm-based','sandwich':'sandwich', 'random_seq':'random_seq', 'delimiters':'delimiters', 'xml':'xml', 'paraphrasing':'paraphrasing', 'retokenization':'retokenization', '': 'no countermeasure', 'nothing': 'no countermeasure', 'prompt_guard': 'prompt guard'}
 defense_name_map={'generate_jailbreaks': 'false answer (ours)', 'substitute': 'substitute (ours)', 'nothing': 'no protection', 'jailbreaks': 'false answer unseen (ours)'}
 if __name__ == '__main__':
-    #text_ratios, defense_success=get_text_ratios_test()
+    #ext_ratios, defense_success=get_text_ratios_test()
     # load run results
     for dataset in ['wikibios', 'llmprivacy', 'RAG']:
         exp_results=[]
-        results_dir="/home/willie/github/LLMDataDefenses/results/experiments/gemini"
+        results_dir="/home/willie/github/LLMDataDefenses/results/experiments/llama-3.1-8b/experiments/"
         for file in os.listdir(results_dir):
             if file[-2:]=='.p':
                 results_file=os.path.join(results_dir, file)
@@ -147,16 +161,17 @@ if __name__ == '__main__':
                     defense_method_results[model][defense_method][countermeasure]={}
                 defense_method_results[model][defense_method][countermeasure][task]=exp_result#['judge_defense_score']
         #Make bar charts
+        u=0
         for model in defense_method_results:
-            defense_methods=list(defense_method_results[model].keys())
+            defense_methods=['jailbreaks']#['generate_jailbreaks', 'nothing']#list(defense_method_results[model].keys())
             defense_methods.sort()
             countermeasures=list(defense_method_results[model][defense_methods[0]].keys())
             countermeasures.sort()
             tasks=list(defense_method_results[model][defense_methods[0]][countermeasures[0]].keys())
             x=np.array([i for i in range(len(countermeasures))])
         
-            colors=['b', 'g', 'r', 'c', 'm', 'y']
-            fig, ax = plt.subplots(figsize=(12,5))
+            colors=['b', 'grey', 'r', 'c', 'm', 'y']
+            fig, ax = plt.subplots(figsize=(12,4))
             width=0.8/len(defense_methods)
             all_defense_results=[]
             all_defense_methods_countermeasures=[]
@@ -199,7 +214,7 @@ if __name__ == '__main__':
                             
                         
                         
-                ax.bar(x-0.3+width*defense_method_ind, defense_results, yerr=defense_ci, width=width, color=colors[defense_method_ind], align='center', label=defense_name_map[defense_method])
+                ax.bar(x-0.2+width*defense_method_ind, defense_results, yerr=defense_ci, width=width, color=colors[defense_method_ind], align='center', label=defense_name_map[defense_method])
                 # except:
                 #     print('error!')
         
@@ -215,14 +230,16 @@ if __name__ == '__main__':
         
             ax.set_xticks(x)
             ax.set_xticklabels([countermeasure_name_map[countermeasure] for countermeasure in countermeasures], rotation=45)
-            ax.legend()
+            
             ax.set_xlabel("Countermeasure Type")
             ax.set_ylabel("Defense Success Rate")
-            ax.set_title(dataset)
+            ax.set_title(f'{model} on {dataset}')
             ax.set_ylim([0, 1])
+            plt.xlim([0-0.4,len(countermeasures)-1+0.4])
             #ax.autoscale(tight=True)
             plt.tight_layout()
-            plt.savefig(f'{results_dir}/{dataset}_full_results.png')
+            ax.legend(loc='lower right', bbox_to_anchor=(1, -0.65))
+            plt.savefig(f'{results_dir}/{dataset}_{model}_full_results.png')
             plt.show()
         
             u=0
