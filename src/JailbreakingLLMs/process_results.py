@@ -163,7 +163,7 @@ if __name__ == '__main__':
         #Make bar charts
         u=0
         for model in defense_method_results:
-            defense_methods=['jailbreaks']#['generate_jailbreaks', 'nothing']#list(defense_method_results[model].keys())
+            defense_methods=['generate_jailbreaks', 'nothing']#list(defense_method_results[model].keys())
             defense_methods.sort()
             countermeasures=list(defense_method_results[model][defense_methods[0]].keys())
             countermeasures.sort()

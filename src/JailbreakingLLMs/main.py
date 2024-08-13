@@ -739,8 +739,8 @@ if __name__ == '__main__':
                                     doc_offset=100
                                 else:
                                     doc_offset=0
-                                run_exps(args, [countermeasure], doc_offset=doc_offset)
-                                exit()
+                                # run_exps(args, [countermeasure], doc_offset=doc_offset)
+                                # exit()
                                     #x = threading.Thread(target=run_exps, args=(args,[countermeasure]))
                                     #x.start()
                                     
@@ -749,12 +749,12 @@ if __name__ == '__main__':
                                     # exit()
                                     os.system(f'''sbatch run_exp.sh "{args.attack_model}" "{args.dataset}" "{args.target_model}" "{countermeasure}" "{args.judge_model}" "{args.attack_type}" "{args.break_task}" "{args.defense_length}" "{args.num_defen_instances}"''')
                                 else:
-                                    run=pool.apply_async(run_exps, args=(copy.deepcopy(args),[countermeasure], doc_offset))
-                                    all_parallel_runs.append(run)
+                                    # run=pool.apply_async(run_exps, args=(copy.deepcopy(args),[countermeasure], doc_offset))
+                                    # all_parallel_runs.append(run)
                                 
-                                    # if exp_run_num==args.experiment_num:
-                                    #     run_exps(args, [countermeasure])
-                                    # exp_run_num+=1
+                                    if exp_run_num==args.experiment_num:
+                                        run_exps(args, [countermeasure])
+                                    exp_run_num+=1
                                 #p = Process(target=run_exps, args=(args,[countermeasure]))
                                 #p.Daemon = True
                                 #p.start()
