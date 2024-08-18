@@ -138,7 +138,8 @@ class FinetunedCheckpoint(LanguageModel):
 
         state_dict = torch.load(checkpoint_path, map_location='cuda:0')
         self.model.load_state_dict(state_dict["state"])
-        
+        self.model.half()
+
     def generate(self, prompt, max_n_tokens, temperature, top_p):
         print("\nThe current prompt is:", prompt)
         input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids.to(self.device)
