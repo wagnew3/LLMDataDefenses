@@ -180,7 +180,7 @@ class TargetLM():
                                                             max_n_tokens = self.max_n_tokens,  
                                                             temperature = self.temperature,
                                                             top_p = self.top_p,
-                                                            do_sample=True
+                                                            do_sample=False
                                                         )
         else:
             outputs_list = self.model.batched_generate(full_prompts, 

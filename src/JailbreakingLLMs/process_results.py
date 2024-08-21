@@ -136,7 +136,7 @@ if __name__ == '__main__':
     # load run results
     for dataset in ['wikibios', 'llmprivacy', 'RAG']:
         exp_results=[]
-        results_dir="/home/willie/github/LLMDataDefenses/results/experiments/llama-3.1-8b/experiments/"
+        results_dir="/home/willie/github/LLMDataDefenses/results/experiments/llama-3.1-8b/no_sample"
         for file in os.listdir(results_dir):
             if file[-2:]=='.p':
                 results_file=os.path.join(results_dir, file)
@@ -163,7 +163,7 @@ if __name__ == '__main__':
         #Make bar charts
         u=0
         for model in defense_method_results:
-            defense_methods=['generate_jailbreaks', 'nothing']#list(defense_method_results[model].keys())
+            defense_methods=['generate_jailbreaks', 'nothing']#'generate_jailbreaks', 'nothing' list(defense_method_results[model].keys())
             defense_methods.sort()
             countermeasures=list(defense_method_results[model][defense_methods[0]].keys())
             countermeasures.sort()
@@ -232,7 +232,7 @@ if __name__ == '__main__':
             ax.set_xticklabels([countermeasure_name_map[countermeasure] for countermeasure in countermeasures], rotation=45)
             
             ax.set_xlabel("Countermeasure Type")
-            ax.set_ylabel("Defense Success Rate")
+            ax.set_ylabel("Attack Failure Rate")
             ax.set_title(f'{model} on {dataset}')
             ax.set_ylim([0, 1])
             plt.xlim([0-0.4,len(countermeasures)-1+0.4])
