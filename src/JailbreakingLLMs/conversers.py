@@ -116,8 +116,8 @@ class AttackLM():
             new_indices_to_regenerate = []
             for i, full_output in enumerate(outputs_list):
                 orig_index = indices_to_regenerate[i]
-                if "gpt" not in self.model_name and 'claude' not in self.model_name and "gemini" not in self.model_name:
-                    full_output = init_message + full_output
+                # if "gpt" not in self.model_name and 'claude' not in self.model_name and "gemini" not in self.model_name:
+                #     full_output = init_message + full_output
                 full_output=full_output.replace("\\n", "\n")
                 print("PROMPT:", full_output)
                 #attack_dict, json_str = common.extract_json(full_output, expected_keys=self.attack_keys)
@@ -186,12 +186,19 @@ class TargetLM():
         #         full_prompts[ind]=full_prompts[ind]+break_task
                 
         
-
-        outputs_list = self.model.batched_generate(full_prompts, 
-                                                        max_n_tokens = self.max_n_tokens,  
-                                                        temperature = self.temperature,
-                                                        top_p = self.top_p
-                                                    )
+        if self.model_name=='vicuna':
+            outputs_list = self.model.batched_generate(full_prompts, 
+                                                            max_n_tokens = self.max_n_tokens,  
+                                                            temperature = self.temperature,
+                                                            top_p = self.top_p,
+                                                            do_sample=False
+                                                        )
+        else:
+            outputs_list = self.model.batched_generate(full_prompts, 
+                                                            max_n_tokens = self.max_n_tokens,  
+                                                            temperature = self.temperature,
+                                                            top_p = self.top_p
+                                                        )
         return outputs_list
 
 

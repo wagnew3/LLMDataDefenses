@@ -33,29 +33,31 @@ class HuggingFace(LanguageModel):
                         full_prompts_list,
                         max_n_tokens: int, 
                         temperature: float,
-                        top_p: float = 1.0,):
+                        top_p: float = 1.0,
+                        do_sample=True):
+        print(full_prompts_list)
         inputs = self.tokenizer(full_prompts_list, return_tensors='pt', padding=True)
         inputs = {k: v.to(self.model.device.index) for k, v in inputs.items()}
     
         # Batch generation
-        if temperature > 0:
-            output_ids = self.model.generate(
-                **inputs,
-                max_new_tokens=max_n_tokens, 
-                do_sample=True,
-                temperature=temperature,
-                eos_token_id=self.eos_token_ids,
-                top_p=top_p,
-            )
-        else:
-            output_ids = self.model.generate(
-                **inputs,
-                max_new_tokens=max_n_tokens, 
-                do_sample=False,
-                eos_token_id=self.eos_token_ids,
-                top_p=1,
-                temperature=1, # To prevent warning messages
-            )
+        # if temperature > 0:
+        output_ids = self.model.generate(
+            **inputs,
+            max_new_tokens=max_n_tokens, 
+            do_sample=do_sample,
+            temperature=1,
+            eos_token_id=self.eos_token_ids,
+            top_p=top_p,
+        )
+        # else:
+        #     output_ids = self.model.generate(
+        #         **inputs,
+        #         max_new_tokens=max_n_tokens, 
+        #         do_sample=False,
+        #         eos_token_id=self.eos_token_ids,
+        #         top_p=1,
+        #         temperature=1, # To prevent warning messages
+        #     )
             
         # If the model is not an encoder-decoder type, slice off the input tokens
         if not self.model.config.is_encoder_decoder:

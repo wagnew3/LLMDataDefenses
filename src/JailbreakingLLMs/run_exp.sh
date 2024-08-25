@@ -13,6 +13,7 @@
 
 # Your job commands go here
 cd /home/wagnew/github/LLMDataDefenses/src/JailbreakingLLMs
+source /home/wagnew/.bashrc
 conda activate resist_tor_311
 
 python main.py --experiment_num=$SLURM_ARRAY_TASK_ID
