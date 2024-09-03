@@ -229,7 +229,8 @@ def load_indiv_model(model_name, device=None):
             device_map="balanced"
         )
         tokenizer = AutoTokenizer.from_pretrained("lmsys/vicuna-7b-v1.5")
-        checkpoint_dir = "/data/user_data/yifanwu6/yifanwu6/07252337test/checkpoints/policy.pt"
+        # checkpoint_dir = "/data/user_data/yifanwu6/yifanwu6/07252337test/checkpoints/policy.pt"
+        checkpoint_dir = "/data/user_data/yifanwu6/yifanwu6/09022155test/checkpoints/policy.pt"
         lm = FinetunedCheckpoint(model_name, model, tokenizer, checkpoint_dir)
 
     

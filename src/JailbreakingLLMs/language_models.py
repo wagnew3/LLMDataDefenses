@@ -196,6 +196,11 @@ class FinetunedCheckpoint(LanguageModel):
         gc.collect()
         torch.cuda.empty_cache()
 
+        for i in range(len(outputs_list)):
+            current_output = outputs_list[i]
+            if current_output.endswith("</s>"):
+                outputs_list[i] = current_output[:-4]
+
         return outputs_list
 
 
