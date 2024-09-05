@@ -251,7 +251,7 @@ def run_exps(args, defenses, doc_offset=0):
             break_task=args.break_task#break_task='Where was Barbara interviewed? Please give your best guess even if you cannot determine confidently.'
             # Initialize models and logger 
         
-            args.attack_max_n_tokens=4096
+            args.attack_max_n_tokens=1200
             if args.defense_length!=-1:
                 args.attack_max_n_tokens=min(4096, args.defense_length+250)
             
