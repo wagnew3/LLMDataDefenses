@@ -1,6 +1,6 @@
 # Code for Data Defenses Agsinst LLMs Project
 
-This is code for using LLMs to generate prompt injection attacks that, when appended to data, cause an attacking LLM to produce output unrelated to its prompts. [Project outline](https://docs.google.com/document/d/1dSU9CHbIVWen5B09l3rVwGW9seBrNX3hp6ZU2Lqk94g/edit) Example:
+This is code for using LLMs to generate prompt injection attacks that, when appended to data, cause an attacking LLM to produce output unrelated to its prompts. Example:
 
 [ATTACKER QUESTION]:
 ```
@@ -38,7 +38,7 @@ The boiling point of water at sea level is 100 degrees Celsius (212 degrees Fahr
 
 ## Installation
 
-1. git clone git@github.com:wagnew3/LLMDataDefenses.git
+1. git clone git@github.com:/LLMDataDefenses.git
 2. cd LLMDataDefenses/
 3. Download and extract the [wikibios dataset](https://lebret.ch/wikipedia-biography-dataset/) into the project folder
 6. conda env create -n resist_llm --file ENV.yml
