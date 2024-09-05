@@ -33,7 +33,7 @@ class HuggingFace(LanguageModel):
         self.eos_token_ids = [self.tokenizer.eos_token_id]
 
     def generate(self, prompt, max_n_tokens, temperature, top_p):
-        input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids.to(self.device)
+        input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids.to(self.model.device)
 
         gen_tokens = self.model.generate(
                      input_ids,
