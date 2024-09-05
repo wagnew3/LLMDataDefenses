@@ -9,6 +9,7 @@ import os
 def load_attack_and_target_models(args):
     # Load attack model and tokenizer
     #print("args.attack_model", args.attack_model)
+    print("MAX_TOKENS:", args.attack_max_n_tokens)
     attackLM = AttackLM(model_name = args.attack_model, 
                         max_n_tokens = args.attack_max_n_tokens, 
                         max_n_attack_attempts = args.max_n_attack_attempts, 
@@ -266,7 +267,7 @@ def load_indiv_model(model_name, device=None):
             device_map="balanced"
         )
         tokenizer = AutoTokenizer.from_pretrained("lmsys/vicuna-7b-v1.5")
-        checkpoint_dir = "/data/user_data/yifanwu6/yifanwu6/07252337test/checkpoints/policy.pt"
+        checkpoint_dir = "/data/user_data/yifanwu6/yifanwu6/09022155test/checkpoints/policy.pt"
         lm = FinetunedCheckpoint(model_name, model, tokenizer, checkpoint_dir)
 
     
@@ -311,7 +312,7 @@ def get_model_path_and_template(model_name):
         },
         "vicuna":{
             "path":VICUNA_PATH,
-            "template":"vicuna_v1.1"
+            "template":"vicuna_v1.5"
         },
         "llama-2":{
             "path":LLAMA_PATH,
@@ -331,11 +332,11 @@ def get_model_path_and_template(model_name):
         },
         "finetuned-pythia": {
             "path": "finetuned-pythia",
-            "template": "vicuna_v1.1" #Using a template that is pre-included
+            "template": "vicuna_v1.5" #Using a template that is pre-included
         },
         "finetuned-vicuna": {
             "path": "finetuned-vicuna",
-            "template": "vicuna_v1.1"
+            "template": "vicuna_v1.5"
         }
     }
     path, template = full_model_dict[model_name]["path"], full_model_dict[model_name]["template"]
