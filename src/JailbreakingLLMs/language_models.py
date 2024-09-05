@@ -15,6 +15,9 @@ import google.generativeai as genai
 class LanguageModel():
     def __init__(self, model_name):
         self.model_name = model_name
+
+    def generate(self, prompt, max_n_tokens, temperature, top_p):
+        raise NotImplementedError
     
     def batched_generate(self, prompts_list: List, max_n_tokens: int, temperature: float):
         """
@@ -28,6 +31,19 @@ class HuggingFace(LanguageModel):
         self.model = model 
         self.tokenizer = tokenizer
         self.eos_token_ids = [self.tokenizer.eos_token_id]
+
+    def generate(self, prompt, max_n_tokens, temperature, top_p):
+        input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids.to(self.device)
+
+        gen_tokens = self.model.generate(
+                     input_ids,
+                     do_sample=True,
+                     temperature=temperature,
+                     max_length=max_n_tokens,
+                     top_p = top_p)
+
+        response = self.tokenizer.batch_decode(gen_tokens[:, input_ids.shape[1]:])[0]
+        return response # Hugging Face generates with prompt included; remove the prompt from response
 
     def batched_generate(self, 
                         full_prompts_list,

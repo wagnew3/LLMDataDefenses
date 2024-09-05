@@ -67,67 +67,98 @@ class AttackLM():
         Returns:
         - List of generated outputs (dictionaries) or None for failed generations.
         """
-        
-        assert len(convs_list) == len(prompts_list), "Mismatch between number of conversations and prompts."
-        
-        batchsize = len(convs_list)
-        indices_to_regenerate = list(range(batchsize))
-        valid_outputs = [None] * batchsize
 
-        # Initalize the attack model's generated output to match format
-        if len(convs_list[0].messages) == 0:
-            init_message = """{\"improvement\": \"\",\"prompt\": \""""
+
+        conv = convs_list[0]
+        prompt = prompts_list[0]
+        
+        init_message = """{\"improvement\": \"\",\"prompt\": \"""" if len(conv.messages) == 0 else """{\"improvement\": \""""
+
+        conv.append_message(conv.roles[0], prompt)
+
+        if "gpt" in self.model_name or "claude" in self.model_name or "gemini" in self.model_name:
+            full_prompt = conv.to_openai_api_messages()
         else:
-            init_message = """{\"improvement\": \"""" 
+            conv.append_message(conv.roles[1], init_message)
+            current_prompt = conv.get_prompt()
+            if not conv.sep2 is None:
+                current_prompt = current_prompt[:-len(conv.sep2)]
+            full_prompt = current_prompt
 
-        full_prompts = []
-        # Add prompts and initial seeding messages to conversations (only once)
-        for conv, prompt in zip(convs_list, prompts_list):
-            conv.append_message(conv.roles[0], prompt)
-            # Get prompts
-            if "gpt" in self.model_name or "claude" in self.model_name or "gemini" in self.model_name:
-                full_prompts.append(conv.to_openai_api_messages())
-            else:
-                conv.append_message(conv.roles[1], init_message)
-                full_prompts.append(conv.get_prompt()[:-len(conv.sep2)])
-            
-        for attempt in range(self.max_n_attack_attempts):
-            # Subset conversations based on indices to regenerate
-            full_prompts_subset = [full_prompts[i] for i in indices_to_regenerate]
+        full_output = self.model.generate(full_prompt,
+                                     max_n_tokens = self.max_n_tokens,  
+                                     temperature = self.temperature,
+                                     top_p = self.top_p
+                                    )
 
-            # Generate outputs 
-            outputs_list = self.model.batched_generate(full_prompts_subset,
-                                                        max_n_tokens = self.max_n_tokens,  
-                                                        temperature = self.temperature,
-                                                        top_p = self.top_p
-                                                    )
+        full_output=full_output.replace("\\n", "\n")
+
+        return [{'prompt': full_output}]
+    
+        """
+        Code below is deprecated
+        """
+
+        # assert len(convs_list) == len(prompts_list), "Mismatch between number of conversations and prompts."
+        
+        # batchsize = len(convs_list)
+        # indices_to_regenerate = list(range(batchsize))
+        # valid_outputs = [None] * batchsize
+
+        # # Initalize the attack model's generated output to match format
+        # if len(convs_list[0].messages) == 0:
+        #     init_message = """{\"improvement\": \"\",\"prompt\": \""""
+        # else:
+        #     init_message = """{\"improvement\": \"""" 
+
+        # full_prompts = []
+        # # Add prompts and initial seeding messages to conversations (only once)
+        # for conv, prompt in zip(convs_list, prompts_list):
+        #     conv.append_message(conv.roles[0], prompt)
+        #     # Get prompts
+        #     if "gpt" in self.model_name or "claude" in self.model_name or "gemini" in self.model_name:
+        #         full_prompts.append(conv.to_openai_api_messages())
+        #     else:
+        #         conv.append_message(conv.roles[1], init_message)
+        #         full_prompts.append(conv.get_prompt()[:-len(conv.sep2)])
             
-            # Check for valid outputs and update the list
-            new_indices_to_regenerate = []
-            for i, full_output in enumerate(outputs_list):
-                orig_index = indices_to_regenerate[i]
-                # if "gpt" not in self.model_name and 'claude' not in self.model_name and "gemini" not in self.model_name:
-                #     full_output = init_message + full_output
-                full_output=full_output.replace("\\n", "\n")
-                #attack_dict, json_str = common.extract_json(full_output, expected_keys=self.attack_keys)
-                return [{'prompt': full_output}]
+        # for attempt in range(self.max_n_attack_attempts):
+        #     # Subset conversations based on indices to regenerate
+        #     full_prompts_subset = [full_prompts[i] for i in indices_to_regenerate]
+
+        #     # Generate outputs 
+        #     outputs_list = self.model.batched_generate(full_prompts_subset,
+        #                                                 max_n_tokens = self.max_n_tokens,  
+        #                                                 temperature = self.temperature,
+        #                                                 top_p = self.top_p
+        #                                             )
+            
+        #     # Check for valid outputs and update the list
+        #     new_indices_to_regenerate = []
+        #     for i, full_output in enumerate(outputs_list):
+        #         orig_index = indices_to_regenerate[i]
+        #         # if "gpt" not in self.model_name and 'claude' not in self.model_name and "gemini" not in self.model_name:
+        #         #     full_output = init_message + full_output
+        #         full_output=full_output.replace("\\n", "\n")
+        #         #attack_dict, json_str = common.extract_json(full_output, expected_keys=self.attack_keys)
+        #         return [{'prompt': full_output}]
                 
-        #         if attack_dict is not None:
-        #             valid_outputs[orig_index] = attack_dict
-        #             convs_list[orig_index].update_last_message(json_str)  # Update the conversation with valid generation
-        #         else:
-        #             new_indices_to_regenerate.append(orig_index)
-        #
-        #     # Update indices to regenerate for the next iteration
-        #     indices_to_regenerate = new_indices_to_regenerate
-        #
-        #     # If all outputs are valid, break
-        #     if not indices_to_regenerate:
-        #         break
-        #
-        # if any([output for output in valid_outputs if output is None]):
-        #     print(f"Failed to generate output after {self.max_n_attack_attempts} attempts. Terminating.")
-        # return valid_outputs
+        # #         if attack_dict is not None:
+        # #             valid_outputs[orig_index] = attack_dict
+        # #             convs_list[orig_index].update_last_message(json_str)  # Update the conversation with valid generation
+        # #         else:
+        # #             new_indices_to_regenerate.append(orig_index)
+        # #
+        # #     # Update indices to regenerate for the next iteration
+        # #     indices_to_regenerate = new_indices_to_regenerate
+        # #
+        # #     # If all outputs are valid, break
+        # #     if not indices_to_regenerate:
+        # #         break
+        # #
+        # # if any([output for output in valid_outputs if output is None]):
+        # #     print(f"Failed to generate output after {self.max_n_attack_attempts} attempts. Terminating.")
+        # # return valid_outputs
 
 class TargetLM():
     """
