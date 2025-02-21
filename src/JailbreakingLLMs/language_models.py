@@ -65,6 +65,7 @@ class HuggingFace(LanguageModel):
 
         # Batch decoding
         outputs_list = self.tokenizer.batch_decode(output_ids, skip_special_tokens=True)
+        print(outputs_list)
 
         for key in inputs:
             inputs[key].to('cpu')

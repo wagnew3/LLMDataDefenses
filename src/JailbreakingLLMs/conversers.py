@@ -68,35 +68,42 @@ class AttackLM():
         - List of generated outputs (dictionaries) or None for failed generations.
         """
         
-        assert len(convs_list) == len(prompts_list), "Mismatch between number of conversations and prompts."
+        #assert len(convs_list) == len(prompts_list), "Mismatch between number of conversations and prompts."
         
         batchsize = len(convs_list)
         indices_to_regenerate = list(range(batchsize))
         valid_outputs = [None] * batchsize
 
         # Initalize the attack model's generated output to match format
-        if len(convs_list[0].messages) == 0:
-            init_message = """{\"improvement\": \"\",\"prompt\": \""""
-        else:
-            init_message = """{\"improvement\": \"""" 
+        # if len(convs_list[0].messages) == 0:
+        #     init_message = """{\"improvement\": \"\",\"prompt\": \""""
+        # else:
+        #     init_message = """{\"improvement\": \"""" 
 
         full_prompts = []
         # Add prompts and initial seeding messages to conversations (only once)
-        for conv, prompt in zip(convs_list, prompts_list):
-            conv.append_message(conv.roles[0], prompt)
-            # Get prompts
-            if "gpt" in self.model_name or "claude" in self.model_name or "gemini" in self.model_name:
-                full_prompts.append(conv.to_openai_api_messages())
-            else:
-                conv.append_message(conv.roles[1], init_message)
-                full_prompts.append(conv.get_prompt()[:-len(conv.sep2)])
+        # for conv, prompt in zip(convs_list, prompts_list):
+        #     conv.append_message(conv.roles[0], prompt)
+        #     # Get prompts
+        #     if "gpt" in self.model_name or "claude" in self.model_name or "gemini" in self.model_name:
+        #         full_prompts.append(conv.to_openai_api_messages())
+        #     else:
+        #         conv.append_message(conv.roles[1], init_message)
+        #         full_prompts.append(conv.get_prompt()[:-len(conv.sep2)])
+        
+        if "gpt" in self.model_name or "claude" in self.model_name or "gemini" in self.model_name:
+            full_prompts=[[{'role': 'system', 'content': convs_list[0]},
+                      {'role': 'user', 'content': prompts_list[0]}
+            ]]
+        else:
+            full_prompts=[convs_list[0]+'\n'+prompts_list[0]]
             
         for attempt in range(self.max_n_attack_attempts):
             # Subset conversations based on indices to regenerate
-            full_prompts_subset = [full_prompts[i] for i in indices_to_regenerate]
+            #full_prompts_subset = [full_prompts[i] for i in indices_to_regenerate]
 
             # Generate outputs 
-            outputs_list = self.model.batched_generate(full_prompts_subset,
+            outputs_list = self.model.batched_generate(full_prompts,
                                                         max_n_tokens = self.max_n_tokens,  
                                                         temperature = self.temperature,
                                                         top_p = self.top_p
@@ -152,7 +159,7 @@ class TargetLM():
             self.model = preloaded_model
             _, self.template = get_model_path_and_template(model_name)
 
-    def get_response(self, prompts_list, break_task):
+    def get_response(self, prompts_list, break_task, context=None):
         batchsize = len(prompts_list)
         convs_list = [common.conv_template(self.template) for _ in range(batchsize)]
         full_prompts = []
@@ -173,7 +180,22 @@ class TargetLM():
         # else:
         #     for ind in range(len(full_prompts)):
         #         full_prompts[ind]=full_prompts[ind]+break_task
-                
+        
+        
+            
+        if "gpt" in self.model_name or "claude" in self.model_name or "gemini" in self.model_name:
+            full_prompts=[[{'role': 'system', 'content': break_task},
+                      {'role': 'user', 'content': prompts_list[0]}
+            ]]
+            if not context is None:
+                full_prompts+=context
+        else:
+            full_prompts=[break_task+'\n'+prompts_list[0]]
+            if not context is None:
+                for context_chat in context:
+                    full_prompts[0]=full_prompts[0]+'\n'+context_chat['role']+': '+context_chat['content']
+                    
+                #full_prompts[0]=[full_prompts[0][0]]+[full_prompts[0][1]]+context
         
         if self.model_name=='vicuna':
             outputs_list = self.model.batched_generate(full_prompts, 
@@ -194,7 +216,7 @@ class TargetLM():
 
 def load_indiv_model(model_name, device=None):
     model_path, template = get_model_path_and_template(model_name)
-    if model_name in ["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo-2024-04-09", "gpt-4o-2024-05-13", "gpt-3.5-turbo-0125"]:
+    if model_name in ["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo-2024-04-09", "gpt-4o-2024-05-13", "gpt-3.5-turbo-0125", "gpt-4o-mini"]:
         lm = GPT(model_name)
     elif model_name in ["claude-2", "claude-instant-1", "claude-3-5-sonnet-20240620"]:
         lm = Claude(model_name)
@@ -202,12 +224,12 @@ def load_indiv_model(model_name, device=None):
         lm = PaLM(model_name)
     else:
         model = AutoModelForCausalLM.from_pretrained(
-                model_path, 
+                model_name, 
                 torch_dtype=torch.float16,
                 low_cpu_mem_usage=True,device_map="auto").eval()
 
         tokenizer = AutoTokenizer.from_pretrained(
-            model_path,
+            model_name,
             use_fast=False
         ) 
 
@@ -226,6 +248,10 @@ def load_indiv_model(model_name, device=None):
 
 def get_model_path_and_template(model_name):
     full_model_dict={
+        "gpt-4o-mini":{
+            "path":"gpt-4",
+            "template":"gpt-4"
+        },
         "gpt-4o-2024-05-13":{
             "path":"gpt-4",
             "template":"gpt-4"
@@ -259,7 +285,11 @@ def get_model_path_and_template(model_name):
             "template":"palm-2"
         }
     }
-    path, template = full_model_dict[model_name]["path"], full_model_dict[model_name]["template"]
+    if model_name in full_model_dict:
+        path, template = full_model_dict[model_name]["path"], full_model_dict[model_name]["template"]
+    else:
+        path=model_name
+        template=model_name
     return path, template
 
 

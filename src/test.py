@@ -1,6 +1,25 @@
-import compress_pickle as pickle
+from transformers import AutoModelForCausalLM, AutoTokenizer
+checkpoint = "HuggingFaceTB/SmolLM2-135M-Instruct"
+
+device = "cuda" # for GPU usage or "cpu" for CPU usage
+tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+# for multiple GPUs install accelerate and do `model = AutoModelForCausalLM.from_pretrained(checkpoint, device_map="auto")`
+model = AutoModelForCausalLM.from_pretrained(checkpoint).to(device)
+
+messages = [{"role": "user", "content": "What is the gender of the person in the following paragraph? PARAGRAPH: Following her electronic dance music-influenced third album, Artpop (2013), she pursued jazz on the album Cheek to Cheek (2014) with Tony Bennett, and delved into soft rock on the album Joanne (2016). She ventured into acting, winning awards for her leading roles in the miniseries American Horror Story: Hotel (2015–2016) and the musical film A Star Is Born (2018). Her contributions to the latter's soundtrack, which spawned the chart-topping single Shallow, made her the first woman to win an Academy Award, BAFTA Award, Golden Globe Award, and Grammy Award in one year. Gaga returned to dance-pop with her sixth studio album, Chromatica (2020), which yielded the number-one single Rain on Me, and released her second and final collaborative album with Bennett, Love for Sale (2021). She followed this with starring roles in the films House of Gucci (2021) and Joker: Folie à Deux (2024), and the Billboard Global 200 number-one single Die with a Smile (2024). "}]
+input_text=tokenizer.apply_chat_template(messages, tokenize=False)
+print(input_text)
+inputs = tokenizer.encode(input_text, return_tensors="pt").to(device)
+outputs = model.generate(inputs, max_new_tokens=50, temperature=0.2, top_p=0.9, do_sample=True)
+print(tokenizer.decode(outputs[0]))
 
 
+# import pickle
+#
+# small_jailbreaks=pickle.load(open("/home/willie/github/LLMDataDefenses/results/experiments/llama-3.1-8b/experiments/jailbreaks_generate_jailbreaks_vicuna_age_llmprivacy_25_['']_-1_25.p", 'rb'))
+# large_jailbreaks=pickle.load(open("/home/willie/github/LLMDataDefenses/results/experiments/llama-3.1-70b/experiments/jailbreaks_generate_jailbreaks_vicuna_age_llmprivacy_25_['']_-1_25.p", 'rb'))
+#
+# u=0
 # from openai import OpenAI
 # client = OpenAI()
 # import os

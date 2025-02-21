@@ -53,6 +53,8 @@ def process_target_response(target_response, score, goal, target_str):
 
 def conv_template(template_name):
     template = get_conversation_template(template_name)
-    if template.name == 'llama-2':
-        template.sep2 = template.sep2.strip()
+    if 'gpt' not in template.name and 'gemini' not in template.name and 'claude' not in template.name:
+        template.sep2 = '</s>'
     return template
+
+
