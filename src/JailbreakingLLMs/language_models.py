@@ -35,7 +35,7 @@ class HuggingFace(LanguageModel):
                         temperature: float,
                         top_p: float = 1.0,
                         do_sample=True):
-        print(full_prompts_list)
+        #print(full_prompts_list)
         inputs = self.tokenizer(full_prompts_list, return_tensors='pt', padding=True)
         inputs = {k: v.to(self.model.device.index) for k, v in inputs.items()}
     
@@ -65,7 +65,7 @@ class HuggingFace(LanguageModel):
 
         # Batch decoding
         outputs_list = self.tokenizer.batch_decode(output_ids, skip_special_tokens=True)
-        print(outputs_list)
+        #print(outputs_list)
 
         for key in inputs:
             inputs[key].to('cpu')
