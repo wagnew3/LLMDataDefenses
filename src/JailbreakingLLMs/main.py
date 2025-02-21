@@ -343,7 +343,7 @@ def run_exps(args, defenses, attackLM=None, targetLM=None, doc_offset=0, adv_pro
             print(system_prompt)
     
             judgeLM = load_judge(args)
-            if args.judge_model=='vicuna':
+            if not 'gpt' in args.judge_model:
                 judgeLM.judge_model=targetLM.model
             
             # Initialize conversations
