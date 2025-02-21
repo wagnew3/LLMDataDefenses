@@ -560,13 +560,14 @@ def run_exps(args, defenses, attackLM=None, targetLM=None, doc_offset=0, adv_pro
 
         
         # Log defense results
-        pickle.dump(results, open(f'../../results/experiments/{args.attack_type}_{args.target_model}_{args.break_task}_{args.dataset}_{args.num_defen_instances}_{defenses}_{args.defense_length}_{args.num_defen_instances}.p', 'wb'))
+        target_model_save_name=args.target_model.replace('/', '')
+        pickle.dump(results, open(f'../../results/experiments/{args.attack_type}_{target_model_save_name}_{args.break_task}_{args.dataset}_{args.num_defen_instances}_{defenses}_{args.defense_length}_{args.num_defen_instances}.p', 'wb'))
         # Save generated jailbreaks
         if args.attack_type=='generate_jailbreaks' or args.attack_type=="focus+substitute":
             print(f'saved {len(jailbreaks)} defenses')
-            pickle.dump(jailbreaks, open(f'../../results/experiments/jailbreaks_{args.attack_type}_{args.target_model}_{args.break_task}_{args.dataset}_{args.num_defen_instances}_{defenses}_{args.defense_length}_{args.num_defen_instances}.p', 'wb'))
+            pickle.dump(jailbreaks, open(f'../../results/experiments/jailbreaks_{args.attack_type}_{target_model_save_name}_{args.break_task}_{args.dataset}_{args.num_defen_instances}_{defenses}_{args.defense_length}_{args.num_defen_instances}.p', 'wb'))
     
-        print(f'Finished {args.attack_type}_{args.target_model}_{args.break_task}_{args.dataset}_{args.num_defen_instances}_{defenses}')
+        print(f'Finished {args.attack_type}_{target_model_save_name}_{args.break_task}_{args.dataset}_{args.num_defen_instances}_{defenses}')
         return results
     # except Exception as e: 
     #     print(e)
@@ -841,7 +842,7 @@ if __name__ == '__main__':
     # args.judge_model="gpt-3.5-turbo-0125"
     # args.attack_type='substitute'
     args.break_task=break_tasks[args.break_task_ind]
-    args.judge_model="gpt-4o-2024-05-13"
+    args.judge_model="meta-llama/Llama-3.1-8B-Instruct"#"gpt-4o-2024-05-13"
     print(f"Starting {args.attack_type}_{args.target_model}_{args.break_task}_{args.dataset}_{args.num_defen_instances}_{args.countermeasure}")
     #run_exps(args, [args.countermeasure])
     
