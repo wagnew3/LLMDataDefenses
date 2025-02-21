@@ -220,7 +220,7 @@ def run_exps(args, defenses, attackLM=None, targetLM=None, doc_offset=0, adv_pro
     # try:
     default_attack_type=args.attack_type
     if True:#not os.path.exists(f'/home/willie/github/LLMDataDefenses/results/experiments/gpt4o/{args.attack_type}_{args.target_model}_{args.break_task}_{args.dataset}_{args.num_defen_instances}_{defenses}_{args.defense_length}_{args.num_defen_instances}.p'):
-        print("a")
+        target_model_save_name=args.target_model.replace('/', '')
         # args, defenses=args
     
         # Initialize countermeasures
@@ -551,7 +551,7 @@ def run_exps(args, defenses, attackLM=None, targetLM=None, doc_offset=0, adv_pro
             
             if attack_num%100==0:
                 # Log defense results
-                pickle.dump(results, open(f'../../results/experiments/{args.attack_type}_{args.target_model}_{args.break_task}_{args.dataset}_{args.num_defen_instances}_{defenses}_{args.defense_length}_{args.num_defen_instances}.p', 'wb'))
+                pickle.dump(results, open(f'../../results/experiments/{args.attack_type}_{target_model_save_name}_{args.break_task}_{args.dataset}_{args.num_defen_instances}_{defenses}_{args.defense_length}_{args.num_defen_instances}.p', 'wb'))
                 # Save generated jailbreaks
                 # if args.attack_type=='generate_jailbreaks':
                 #     print(f'saved {len(jailbreaks)} defenses')
@@ -560,7 +560,7 @@ def run_exps(args, defenses, attackLM=None, targetLM=None, doc_offset=0, adv_pro
 
         
         # Log defense results
-        target_model_save_name=args.target_model.replace('/', '')
+        
         pickle.dump(results, open(f'../../results/experiments/{args.attack_type}_{target_model_save_name}_{args.break_task}_{args.dataset}_{args.num_defen_instances}_{defenses}_{args.defense_length}_{args.num_defen_instances}.p', 'wb'))
         # Save generated jailbreaks
         if args.attack_type=='generate_jailbreaks' or args.attack_type=="focus+substitute":
