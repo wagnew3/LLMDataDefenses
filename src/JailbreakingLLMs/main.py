@@ -512,10 +512,10 @@ def run_exps(args, defenses, attackLM=None, targetLM=None, doc_offset=0, adv_pro
                 else:
                     judge_scores=[10]
                 print('********************************************************************************')
-                print('prompt', prompt)
-                print('input', input)
-                print('target_response', target_response)
-                print('judge_scores', judge_scores)
+                print('***prompt***', prompt)
+                print('***input***', input)
+                print('***target_response***', target_response)
+                print('***judge_scores***', judge_scores)
                 #print('judge_scores', judge_scores)
                 # if judge_scores[0]>=7:
                 #     successful_attempts+=1
