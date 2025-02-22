@@ -95,7 +95,7 @@ def protect_text(args, attackLM, bio, init_msg, system_prompt, results, test_num
                     extracted_attack_list = attackLM.get_attack([system_prompt], processed_response_list)
                     attempts+=1
                 
-                extracted_attack_list[0]['prompt']=extracted_attack_list[0]['prompt'][extracted_attack_list[0]['prompt'].index('[ANSWER]')+len("[ANSWER]"):]
+                extracted_attack_list[0]['prompt']=extracted_attack_list[0]['prompt'][extracted_attack_list[0]['prompt'].rindex('[ANSWER]')+len("[ANSWER]"):]
                 
                 chaff_system_prompt = get_attacker_system_prompt(
                     args.goal,
